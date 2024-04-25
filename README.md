@@ -2,20 +2,16 @@
  Example of a minimal app using Flask
 
 # Installation
-Create a virtual environment
-```shell
- py -3 -m venv .venv
- .venv\Scripts\Activate
-```
-
-Install Flask
-```shell
-pip install Flask
-```
+Install neccessary library
 
 # Run the app
 
+Create db
 ```shell
-flask --app hello run
+python models.py
 ```
 
+Run app
+```shell
+python app.py
+```
