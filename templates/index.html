@@ -1,0 +1,9 @@
+<h3>User List</h3>
+
+<ul>
+{% for user in users %}
+    <li>{{ user.id }} - {{ user.username }}, {{ user.email }}, {{ user.password }} 
+{% endfor %}
+</ul>
+
+<a href="/add">Add User</a>
