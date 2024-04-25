@@ -1,0 +1,27 @@
+<h3>Add User</h3>
+
+{% if user %}
+
+<p><strong>{{user.name}}</strong> Successfully created! Add another below.</p>
+<p><a href="/">Back to User List</a></p>
+
+{% endif %}
+
+
+<!-- The form action and method correspond to a Flask route -->
+<form action="/add" method="POST">
+
+    <label for="username_id">Name</label>
+    <input id="username_id" name="username_field" type="text" />
+
+    <label for="email_id">Email</label>
+    <input id="email_id" name="email_field" type="text" size="4" />
+
+    <label for="password_id">Password</label>
+    <input id="password_id" name="password_field" type="text" size="4" />
+
+
+    <!-- We need a submit button to submit a form! -->
+    <input type="submit" value="Add"/>
+
+</form>
