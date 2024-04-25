@@ -65,6 +65,12 @@ class Comment(db.Model):
         self.post_id = post_id
         self.content = content
 
+def create_post(user_id, title, content):
+    post = Post(user_id, title, content)
+    db.session.add(post)
+    db.session.commit()
+    return post
+
 if __name__ == "__main__":
     with app.app_context():
         if not path.exists('app.db'):

@@ -1,6 +1,6 @@
 from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash
 from datetime import timedelta
-from models import User, create_user, checkLogin
+from models import *
 from app import app
 
 app.permanent_session_lifetime = timedelta(minutes=5)
@@ -51,9 +51,15 @@ def logout():
 
 @app.get('/post')
 def getpostpage():
-    session['user'] = 'user1'
-    return render_template('post.html')
+    # session['user'] = 'user1'
+    return render_template('post_input.html')
 
 @app.post('/post')
 def post_bai():
-    if 'user' in session:
+    if (session['user']):
+        user_id = session['user']
+        title = request.form['title']
+        content = request.form['content']
+        post = create_post(user_id, title, content)
+        return render_template('post_content.html', post=post)
+    return redirect(url_for('login'))
