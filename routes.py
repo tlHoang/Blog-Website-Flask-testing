@@ -8,11 +8,7 @@ app.config['SECRET_KEY'] = 'tanphat'
 
 @app.route('/')
 def index():
-
-    users = User.query.all()
-
-    return render_template('index.html', users=users)
-
+    return render_template('home.html')
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -36,7 +32,7 @@ def login():
         checkUser = checkLogin(username, password)
         if checkUser:
             session['user'] = checkUser
-            return redirect(url_for('user'))
+            return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/user')
@@ -47,7 +43,7 @@ def user():
 @app.get('/logout')
 def logout():
     session.pop('user', default=None)
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 @app.get('/post')
 def getpostpage():

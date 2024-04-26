@@ -1,13 +1,76 @@
-<form action="/login" method="POST">
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
 
-    <label for="username">Username</label>
-    <input id="username" name="username_field" type="text" />
+{% block css %}
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 80vh;
+        }
 
-    <label for="password">Password</label>
-    <input id="password" name="password_field" type="password" size="8" />
+        h2 {
+            margin-bottom: 20px;
+        }
 
+        .form_login {
+            border: 2px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+        }
 
-    <!-- We need a submit button to submit a form! -->
-    <input type="submit" value="Login"/>
+        .form_login label {
+            padding-bottom: 15px;
+            margin-right: 15px;
+        }
 
-</form>
+        .form_login input {
+            padding: 3px 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* Định dạng cho nút submit */
+        .form_login input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-bottom: 5px;
+        }
+
+        .form_login input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/login" method="POST" class="form_login">
+
+            <table>
+                <tr>
+                    <td><label for="username">Username</label></td>
+                    <td><input id="username" name="username_field" type="text" /></td>
+                </tr>
+                <tr>
+                    <td><label for="password">Password</label></td>
+                    <td><input id="password" name="password_field" type="password" /></td>
+                </tr>
+            </table>
+    
+            <input type="submit" value="Login"/>
+    
+        </form>
+    </div>
+{% endblock %}
