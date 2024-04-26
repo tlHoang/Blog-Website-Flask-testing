@@ -47,15 +47,26 @@ def logout():
 
 @app.get('/post')
 def getpostpage():
-    # session['user'] = 'user1'
-    return render_template('post_input.html')
+    if 'user' in session:
+        return render_template('post_input.html')
+    return redirect(url_for('index'))
 
 @app.post('/post')
 def post_bai():
     if (session['user']):
-        user_id = session['user']
+        print(session['user'])
+        user_id = session['user']['id']
         title = request.form['title']
         content = request.form['content']
         post = create_post(user_id, title, content)
         return render_template('post_content.html', post=post)
     return redirect(url_for('login'))
+
+@app.get('/my_post')
+def my_post():
+    if 'user' in session:
+        user_id = session['user']['id']
+        my_post = getAllPost(user_id)
+        print(my_post)
+        return render_template('my_post.html', myPosts=my_post)
+    return redirect(url_for('index'))

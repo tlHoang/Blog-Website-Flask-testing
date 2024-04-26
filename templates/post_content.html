@@ -1,8 +1,38 @@
 {% extends 'base.html' %}
-
 {% block title %}{{ post.title }}{% endblock %}
 
+{% block css %}
+    <style>
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 50vw;
+            margin-top: 20px;
+        }
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 95vw;
+            }
+        }
+        @media screen and (max-width: 992px) {
+            .container {
+                width: 85vw;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-<h2>{{ post.title }}</h2>
-<span>{{ post.content }}</span>
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">{{ post.title }}</h5>
+                <p class="card-text">{{ post.content }}</p>
+                <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+            </div>
+            <img src="https://scontent-hkg4-2.xx.fbcdn.net/v/t39.30808-6/439998760_294663513691172_5640833748354792090_n.jpg?stp=dst-jpg_p180x540&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=u1tr8lFrDbYQ7kNvgHdBMkM&_nc_ht=scontent-hkg4-2.xx&oh=00_AfAuXr9JswFt-x97VvfmqgVQRu3gd4fRqQoaDw0IHNWoFA&oe=663185FF" class="card-img-bottom" alt="...">
+        </div>
+    </div>
 {% endblock %}

@@ -71,6 +71,21 @@ def create_post(user_id, title, content):
     db.session.commit()
     return post
 
+def getAllPost(user_id):
+    posts = Post.query.filter_by(user_id=user_id).all()
+    if posts:
+        post_list = []
+        for post in posts:
+            post_dict = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'title': post.title,
+                'content': post.content
+            }
+            post_list.append(post_dict)
+        return post_list
+    return None
+
 if __name__ == "__main__":
     with app.app_context():
         if not path.exists('app.db'):
