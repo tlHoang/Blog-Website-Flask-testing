@@ -113,13 +113,13 @@
                 flex-wrap: wrap;
             }
             .modal {
-            padding-top: 50px; /* Giảm padding trên cho màn hình nhỏ */
+            padding-top: 50px;
             }
             .modal-content {
-                width: 90%; /* Tăng chiều rộng modal trên màn hình nhỏ */
+                width: 90%;
             }
             .close {
-                font-size: 30px; /* Giảm kích thước của nút đóng */
+                font-size: 30px;
             }
         }
     </style>
@@ -153,6 +153,27 @@
             document.getElementById("imageInput").click();
         }
 
+        var modal = document.getElementById('myModal');
+        var span = document.getElementsByClassName("close")[0];
+
+        span.onclick = function() {
+            modal.style.display = "none";
+            document.querySelectorAll('.bi-x-circle').forEach(function(element) {
+                element.style.display = "block";
+                element.style.marginTop = "3px";
+            });
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+                document.querySelectorAll('.bi-x-circle').forEach(function(element) {
+                    element.style.display = "block";
+                    element.style.marginTop = "3px";
+                });
+            }
+        }
+
         document.getElementById('imageInput').addEventListener('change', function(event) {
             var imagesDiv = document.querySelector('.image-list');
             var files = event.target.files;
@@ -171,7 +192,7 @@
                     img.style.cursor = 'pointer';
     
                     var removeButton = document.createElement('button');
-                    removeButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16">
+                    removeButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16" id="close_svg">
                         <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
                         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
                     </svg>`;
@@ -190,6 +211,18 @@
                     imgContainer.appendChild(img);
                     imgContainer.appendChild(removeButton);
                     imagesDiv.appendChild(imgContainer);
+
+                    img.onclick = function() {
+                        var modal = document.getElementById('myModal');
+                        var modalImg = document.getElementById('img01');
+                        var captionText = document.getElementById('caption');
+                        modal.style.display = "block";
+                        modalImg.src = this.src;
+                        captionText.innerHTML = this.alt;
+                        document.querySelectorAll('.bi-x-circle').forEach(function(element) {
+                            element.style.display = "none";
+                        });
+                    };
                 };
                 reader.readAsDataURL(file);
             });
