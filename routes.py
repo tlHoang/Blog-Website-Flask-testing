@@ -2,6 +2,7 @@ from flask import Flask, redirect, url_for, render_template, request, session, r
 from datetime import timedelta
 from models import *
 from app import app
+import base64
 
 app.permanent_session_lifetime = timedelta(minutes=5)
 app.config['SECRET_KEY'] = 'tanphat'
@@ -62,14 +63,12 @@ def post_bai():
         for image in images:
             if image.filename != '':
                 image_data = image.read()
-                createImg(post.id, image_data, image.filename, image.mimetype)
+                base64_image = base64.b64encode(image_data).decode('utf-8')
+                createImg(post.id, base64_image, image.filename, image.mimetype)
 
         postWithImage = getPostFromPostID(post.id)
-
-        img = postWithImage['Imgs'][0]
-        print(img['img'])
-        return Response(img['img'], mimetype=img['mimetype'])
-        # return render_template('post_content.html', post=postWithImage)
+        return render_template('post_content.html', post=postWithImage)
+    
     return redirect(url_for('login'))
 
 @app.get('/my_post')
