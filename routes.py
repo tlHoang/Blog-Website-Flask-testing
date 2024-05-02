@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash
+from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response
 from datetime import timedelta
 from models import *
 from app import app
@@ -53,13 +53,23 @@ def getpostpage():
 
 @app.post('/post')
 def post_bai():
-    if (session['user']):
-        print(session['user'])
+    if 'user' in session:
         user_id = session['user']['id']
         title = request.form['title']
         content = request.form['content']
         post = create_post(user_id, title, content)
-        return render_template('post_content.html', post=post)
+        images = request.files.getlist('image')
+        for image in images:
+            if image.filename != '':
+                image_data = image.read()
+                createImg(post.id, image_data, image.filename, image.mimetype)
+
+        postWithImage = getPostFromPostID(post.id)
+
+        img = postWithImage['Imgs'][0]
+        print(img['img'])
+        return Response(img['img'], mimetype=img['mimetype'])
+        # return render_template('post_content.html', post=postWithImage)
     return redirect(url_for('login'))
 
 @app.get('/my_post')

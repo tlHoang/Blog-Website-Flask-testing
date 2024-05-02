@@ -47,6 +47,7 @@
             overflow-x: auto;
             overflow-y: hidden;
             width: 100%;
+            margin-top: 10px;
             margin-bottom: 10px;
         }
 
@@ -126,7 +127,7 @@
 {% endblock %}
 
 {% block content %}
-    <form action="/post" method="post" class="container">
+    <form action="/post" method="post" class="container" enctype="multipart/form-data">
         <h2>Create Post</h2>
         <input type="text" name="title" id="title" placeholder="Post Title">
         <textarea name="content" id="content" cols="30" rows="10" placeholder="Post Content"></textarea>

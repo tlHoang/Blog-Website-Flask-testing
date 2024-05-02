@@ -32,7 +32,11 @@
                 <p class="card-text">{{ post.content }}</p>
                 <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
             </div>
-            <img src="https://scontent-hkg4-2.xx.fbcdn.net/v/t39.30808-6/439998760_294663513691172_5640833748354792090_n.jpg?stp=dst-jpg_p180x540&_nc_cat=111&ccb=1-7&_nc_sid=5f2048&_nc_ohc=u1tr8lFrDbYQ7kNvgHdBMkM&_nc_ht=scontent-hkg4-2.xx&oh=00_AfAuXr9JswFt-x97VvfmqgVQRu3gd4fRqQoaDw0IHNWoFA&oe=663185FF" class="card-img-bottom" alt="...">
+            {% if post.numImg > 0 %}
+                {% for img in post['Imgs'] %}
+                    <img src="data:{{ img['mimetype'] }};base64,{{ img['img'] }}" alt="{{ img['name'] }}" class="card-img-bottom">
+                {% endfor %}
+            {% endif %}
         </div>
     </div>
 {% endblock %}
