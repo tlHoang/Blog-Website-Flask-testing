@@ -76,6 +76,10 @@ def my_post():
     if 'user' in session:
         user_id = session['user']['id']
         my_post = getAllPost(user_id)
-        print(my_post)
+        # print(my_post)
         return render_template('my_post.html', myPosts=my_post)
     return redirect(url_for('index'))
+
+@app.route('/register')
+def register():
+    return render_template('register.html')

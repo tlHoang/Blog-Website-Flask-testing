@@ -1,5 +1,6 @@
 from app import db, app
 from os import path
+from sqlalchemy import desc
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,8 +53,8 @@ class Comment(db.Model):
 class Img(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    img = db.Column(db.Text, nullable=False)
-    name = db.Column(db.Text, nullable=False)
+    img = db.Column(db.Text, nullable=False, unique=False)
+    name = db.Column(db.Text, nullable=False, unique=False)
     mimetype = db.Column(db.Text, nullable=False)
 
     def __init__(self, post_id, img, name, mimetype):
@@ -86,7 +87,7 @@ def create_post(user_id, title, content):
     return post
 
 def getAllPost(user_id):
-    posts = Post.query.filter_by(user_id=user_id).all()
+    posts = Post.query.filter_by(user_id=user_id).order_by(desc(Post.id)).all()
     if posts:
         post_list = []
         for post in posts:
