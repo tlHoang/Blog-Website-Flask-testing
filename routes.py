@@ -1,18 +1,15 @@
-from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash
+from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response
 from datetime import timedelta
 from models import *
 from app import app
+import base64
 
 app.permanent_session_lifetime = timedelta(minutes=5)
 app.config['SECRET_KEY'] = 'tanphat'
 
 @app.route('/')
 def index():
-
-    users = User.query.all()
-
-    return render_template('index.html', users=users)
-
+    return render_template('home.html')
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -36,7 +33,7 @@ def login():
         checkUser = checkLogin(username, password)
         if checkUser:
             session['user'] = checkUser
-            return redirect(url_for('user'))
+            return redirect(url_for('index'))
     return render_template('login.html')
 
 @app.route('/user')
@@ -47,19 +44,42 @@ def user():
 @app.get('/logout')
 def logout():
     session.pop('user', default=None)
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))
 
 @app.get('/post')
 def getpostpage():
-    # session['user'] = 'user1'
-    return render_template('post_input.html')
+    if 'user' in session:
+        return render_template('post_input.html')
+    return redirect(url_for('index'))
 
 @app.post('/post')
 def post_bai():
-    if (session['user']):
-        user_id = session['user']
+    if 'user' in session:
+        user_id = session['user']['id']
         title = request.form['title']
         content = request.form['content']
         post = create_post(user_id, title, content)
-        return render_template('post_content.html', post=post)
+        images = request.files.getlist('image')
+        for image in images:
+            if image.filename != '':
+                image_data = image.read()
+                base64_image = base64.b64encode(image_data).decode('utf-8')
+                createImg(post.id, base64_image, image.filename, image.mimetype)
+
+        postWithImage = getPostFromPostID(post.id)
+        return render_template('post_content.html', post=postWithImage)
+    
     return redirect(url_for('login'))
+
+@app.get('/my_post')
+def my_post():
+    if 'user' in session:
+        user_id = session['user']['id']
+        my_post = getAllPost(user_id)
+        # print(my_post)
+        return render_template('my_post.html', myPosts=my_post)
+    return redirect(url_for('index'))
+
+@app.route('/register')
+def register():
+    return render_template('register.html')
