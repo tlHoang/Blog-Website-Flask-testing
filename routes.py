@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response
+from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response, abort
 from datetime import timedelta
 from models import *
 from app import app
@@ -6,6 +6,50 @@ import base64
 
 app.permanent_session_lifetime = timedelta(minutes=5)
 app.config['SECRET_KEY'] = 'tanphat'
+
+@app.get('/test_comment')
+def test_comment_page():
+    session['user'] = {
+        'id': 1
+    }
+    return render_template('test_comment.html')
+
+@app.post('/test_comment')
+def test_comment():
+    post_id = request.form.get('post_id')
+    comments = getCommentsFromPostId(post_id)
+    return render_template('test_comment_result.html', comments=comments)
+
+@app.get('/test_add_comment')
+def test_add_comment():
+    session['user'] = {
+        'id': 1
+    }
+    return render_template('test_add_comment.html', post_id=1)
+
+@app.post('/test_add_comment/<int:post_id>')
+def test_add_comment_post(post_id):
+    user_id = session['user']['id']
+    print(user_id)
+    if not user_id:
+        abort(403)
+    content = request.form.get('content')
+    createComment(user_id=user_id, post_id=post_id, content=content)
+    return redirect(url_for('test_add_comment'))
+
+###
+
+@app.get('/post_detail/post_id=<int:post_id>')
+def get_post_detail(post_id):
+    user_id = getUserIdFromPostId(post_id)
+    my_post = False
+    if session.get('user'):
+        if session['user']['id'] is user_id and user_id is not None:
+            my_post = True
+    post_detail = getPostDetailFromPostId(post_id)
+    return render_template('post_detail.html', post=post_detail, is_my_post=my_post)
+
+###
 
 @app.route('/')
 def index():
