@@ -49,6 +49,13 @@ def get_post_detail(post_id):
     post_detail = getPostDetailFromPostId(post_id)
     return render_template('post_detail.html', post=post_detail, is_my_post=my_post)
 
+@app.post('/comment/post_id=<int:post_id>')
+def post_comment(post_id):
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    createComment(user_id=session['user']['id'], post_id=post_id, content=request.form.get('content'))
+    return redirect(url_for('get_post_detail', post_id=post_id))
+
 ###
 
 @app.route('/')

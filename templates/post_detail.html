@@ -104,6 +104,16 @@
                     </svg>
                 </div>
             </div>
+            <hr style="margin: 0px">
+            <div class="card-body">
+                <form action="/comment/post_id={{ post['id'] }}" method="post">
+                    <div class="form-group">
+                        <label for="commentContent">Comment</label>
+                        <textarea class="form-control" id="commentContent" name="content" rows="1"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send</button>
+                </form>
+            </div>
             {% if post['numComment'] > 0 %}
             <div class="card-body">
                 {% for comment in post['comments'] %}
@@ -117,4 +127,6 @@
             {% endif %}
         </div>
     </div>
+    <script>
+    </script>
 {% endblock %}
