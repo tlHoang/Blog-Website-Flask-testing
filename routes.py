@@ -1,8 +1,9 @@
-from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response, abort
+from flask import Flask, redirect, url_for, render_template, request, session, redirect, url_for, render_template_string, session, flash, Response, abort, jsonify
 from datetime import timedelta
 from models import *
 from app import app
 import base64
+import html
 
 app.permanent_session_lifetime = timedelta(minutes=5)
 app.config['SECRET_KEY'] = 'tanphat'
@@ -55,6 +56,38 @@ def post_comment(post_id):
         return redirect(url_for('login'))
     createComment(user_id=session['user']['id'], post_id=post_id, content=request.form.get('content'))
     return redirect(url_for('get_post_detail', post_id=post_id))
+
+@app.post('/comment')
+def new_comment():
+    data = request.json
+    comment = createComment(data['postId'], data['userId'], data['content'])
+    html_response = (
+        "<div class='card-body comment-body'>"
+        f"<h6 class='card-title comment-title'>{getUsernameFromId(comment.user_id)}</h6>"
+        f"<p class='card-text comment-content'>{html.escape(comment.content)}</p>"
+        "<p class='card-text update-time text-muted'>Updated: just now </p>"
+        "</div>"
+    )
+    return html_response, 200
+
+@app.post('/like_action')
+def like_action():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    data = request.json
+    user_id = session['user']['id']
+    post_id = data['postId']
+    if checkUserLike(post_id, user_id):
+        removeLike(post_id, user_id)
+        return {
+            'likeStatus': 'remove',
+            'likeCount': getLikeNumber(post_id)
+        }, 200
+    createLike(post_id, user_id)
+    return {
+        'likeStatus': 'add',
+        'likeCount': getLikeNumber(post_id)
+    }, 200
 
 ###
 
