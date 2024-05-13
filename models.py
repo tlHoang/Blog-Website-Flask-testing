@@ -36,6 +36,7 @@ class Post(db.Model):
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     likes = db.relationship('Like', backref='post', lazy='dynamic')
     imgs = db.relationship('Img', backref='post', lazy='dynamic')
+    created_at = db.Column(db.DateTime, default=datetime.now)
 
     def __init__(self, user_id, title, content):
         self.user_id = user_id
@@ -104,6 +105,8 @@ def getLikeNumber(post_id):
     return len(likes)
 
 def checkUserLike(post_id, user_id):
+    if user_id is None:
+        return False
     like = Like.query.filter_by(post_id=post_id, user_id=user_id).first()
     return True if like else False
 
@@ -166,7 +169,7 @@ def createComment(post_id, user_id, content):
     db.session.commit()
     return comment
 
-def getPostDetailFromPostId(post_id):
+def getPostDetailFromPostId(post_id, user_id=None):
     post = Post.query.filter_by(id=post_id).first()
     if post:
         return {
@@ -177,8 +180,10 @@ def getPostDetailFromPostId(post_id):
             'numComment': getCommentNumber(post.id),
             'comments': getCommentsFromPostId(post.id),
             'numLike': getLikeNumber(post.id),
+            'isLiked': checkUserLike(post.id, user_id),
             'numImg' : getNumberImgPerPost(post.id),
-            'Imgs' : getAllImgOfPost(post.id)
+            'Imgs' : getAllImgOfPost(post.id),
+            'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
         }
     return None
 
@@ -202,7 +207,8 @@ def getAllPost(user_id):
                 'numLike': getLikeNumber(post.id),
                 'isLiked': checkUserLike(post.id, user_id),
                 'numImg' : getNumberImgPerPost(post.id),
-                'Imgs' : getAllImgOfPost(post.id)
+                'Imgs' : getAllImgOfPost(post.id),
+                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
             }
             post_list.append(post_dict)
         return post_list

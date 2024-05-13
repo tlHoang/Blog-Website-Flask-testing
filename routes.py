@@ -43,11 +43,13 @@ def test_add_comment_post(post_id):
 @app.get('/post_detail/post_id=<int:post_id>')
 def get_post_detail(post_id):
     user_id = getUserIdFromPostId(post_id)
+    user_id_view = None
     my_post = False
     if session.get('user'):
+        user_id_view = session['user']['id']
         if session['user']['id'] is user_id and user_id is not None:
             my_post = True
-    post_detail = getPostDetailFromPostId(post_id)
+    post_detail = getPostDetailFromPostId(post_id, user_id_view)
     return render_template('post_detail.html', post=post_detail, is_my_post=my_post)
 
 @app.post('/comment/post_id=<int:post_id>')
@@ -88,6 +90,10 @@ def like_action():
         'likeStatus': 'add',
         'likeCount': getLikeNumber(post_id)
     }, 200
+
+@app.get('/user_profile')
+def user_profile():
+    return render_template('user_profile.html')
 
 ###
 

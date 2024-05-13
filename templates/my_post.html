@@ -92,7 +92,7 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ post['title'] }}</h5>
                         <p class="card-text">{{ post['content'] }}</p>
-                        <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
+                        <p class="card-text"><small class="text-muted">{{ post['lastUpdated'] }}</small></p>
                     </div>
                     {% if post['numImg'] > 0 %}
                         {% for img in post['Imgs'] %}
