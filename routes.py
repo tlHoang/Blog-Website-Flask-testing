@@ -89,17 +89,17 @@ def like_action():
         'likeCount': getLikeNumber(post_id)
     }, 200
 
-# @app.post('/share_action')
-# def share_action():
-#     if 'user' not in session:
-#         return redirect(url_for('login'))
-#     data = request.json
-#     user_id = session['user']['id']
-#     post_id = data['postId']
-
-#     return {
-#         'shareCount': getShareNumber(post_id)
-#     }, 200
+@app.post('/share_action')
+def share_action():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user']['id']
+    post_id = request.form.get('postId')
+    recipient_ids = request.form.getlist('recipientId')
+    for recipient_id in recipient_ids:
+        sharePost(user_id, recipient_id, post_id)
+        app.logger.debug(f"User {user_id} shared post {post_id} to user {recipient_id}")
+    return jsonify({}), 204
 ###
 
 @app.route('/')
@@ -163,7 +163,11 @@ def post_bai():
                 createImg(post.id, base64_image, image.filename, image.mimetype)
 
         postWithImage = getPostFromPostID(post.id)
-        return render_template('post_content.html', post=postWithImage)
+        nicknameList = getAllNickname()
+        # Remove the current user from the nicknameList
+        nicknameList = [user for user in nicknameList if user['id'] != user_id]
+
+        return render_template('post_content.html', post=postWithImage, nicknameList=nicknameList)
     
     return redirect(url_for('login'))
 

@@ -154,6 +154,13 @@ def getCommentsFromPostId(post_id):
         return comment_list
     return None
 
+def sharePost(user_id, recipient_id, post_id):
+    share = Share(user_id, recipient_id, post_id)
+    db.session.add(share)
+    db.session.commit()
+    app.logger.debug(f"User {user_id} shared post {post_id} to user {recipient_id} successfully!")
+    return share
+
 def getReadableTimeString(time):
     if time.days == 0:
         if time.seconds < 60:
@@ -174,6 +181,19 @@ def getReadableTimeString(time):
 def getUsernameFromId(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.username if user else None
+
+def getAllNickname():
+    users = User.query.all()
+    if users:
+        user_list = []
+        for user in users:
+            user_dict = {
+                'id': user.id,
+                'nickname': user.nickname
+            }
+            user_list.append(user_dict)
+        return user_list
+    return None
 
 def createComment(post_id, user_id, content):
     comment = Comment(user_id, post_id, content)
