@@ -102,10 +102,11 @@ def add():
         return render_template('add.html')
 
     username = request.form.get('username_field')
+    nickname = request.form.get('nickname_field')
     email = request.form.get('email_field')
     password = request.form.get('password_field')
 
-    user = create_user(username, email, password)
+    user = create_user(username, nickname, email, password)
     return render_template('add.html', user=user)
 
 @app.route('/login', methods = ['GET', 'POST'])

@@ -4,7 +4,7 @@ shareButtons.forEach((btn) => {
 })
 function shareButtonClicked(event) {
     // event.preventDefault();
-    var postId = event.target.dataset.postId;
+    const postId = event.target.dataset.postId;
     fetch(`/share_action`, {
         method: 'POST',
         headers: {

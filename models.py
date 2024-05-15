@@ -6,6 +6,7 @@ from sqlalchemy import desc
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100))
+    nickname = db.Column(db.String(100))
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
@@ -15,8 +16,9 @@ class User(db.Model):
     followers = db.relationship('Follow', foreign_keys='Follow.follower_id', backref='follower', lazy='dynamic')
     followings = db.relationship('Follow', foreign_keys='Follow.following_id', backref='following', lazy='dynamic')
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, nickname, email, password):
         self.username = username
+        self.nickname = nickname
         self.email = email
         self.password = password
 
@@ -88,8 +90,8 @@ class Img(db.Model):
         self.name = name
         self.mimetype = mimetype
 
-def create_user(username, email, password):
-    user = User(username, email, password)
+def create_user(username, nickname, email, password):
+    user = User(username, nickname, email, password)
     db.session.add(user)
     db.session.commit()
     return user
@@ -100,6 +102,7 @@ def checkLogin(username, password):
         return {
             'id': loginUser.id,
             'username': loginUser.username,
+            'nickname': loginUser.nickname,
             'email': loginUser.email,
             'password': loginUser.password
         }
