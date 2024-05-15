@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Login{% endblock %}
+{% block title %}Register{% endblock %}
 
 {% block css %}
     <style>
@@ -21,6 +21,7 @@
             border-radius: 5px;
             display: flex;
             flex-direction: column;
+            background-color: #fff;
         }
 
         .form_login label {
@@ -55,29 +56,57 @@
 {% block content %}
     <div class="container">
         <h2>Register</h2>
-        <form action="/login" method="POST" class="form_login">
+        <form action="/register" method="POST" class="form_login" onsubmit="return validateForm()">
 
             <table>
                 <tr>
                     <td><label for="username">Username</label></td>
-                    <td><input id="username" name="username_field" type="text" /></td>
+                    <td><input id="username" name="username_field" type="text" required/></td>
                 </tr>
                 <tr>
                     <td><label for="email">Email</label></td>
-                    <td><input id="email" name="email_field" type="text" /></td>
+                    <td><input id="email" name="email_field" type="text" required/></td>
                 </tr>
                 <tr>
                     <td><label for="password">Password</label></td>
-                    <td><input id="password" name="password_field" type="password" /></td>
+                    <td><input id="password" name="password_field" type="password" required/></td>
                 </tr>
                 <tr>
                     <td><label for="cpassword">Confirm Password</label></td>
-                    <td><input id="cpassword" name="cpassword_field" type="password" /></td>
+                    <td><input id="cpassword" name="cpassword_field" type="password" required/></td>
                 </tr>
             </table>
-    
+            {% with messages = get_flashed_messages() %}
+                {% if messages: %}
+                    <div style="display: flex; justify-content: center; align-items: center; margin: 0; padding: 0;">
+                        {% for m in messages: %}
+                            <p style="color: red; font-size: 13px;">{{m}}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
             <input type="submit" value="Register"/>
     
         </form>
     </div>
+    <script>
+        function validateForm(){
+            var username = document.getElementById('username').value
+            var email = document.getElementById('email').value
+            var pass = document.getElementById('password').value
+            var c_pass = document.getElementById('cpassword').value
+
+            if (pass != c_pass){
+                alert("Password and Confirm Password do not match!");
+                return false;
+            }
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address!");
+                return false;
+            }
+            
+            return True
+        }
+    </script>
 {% endblock %}
