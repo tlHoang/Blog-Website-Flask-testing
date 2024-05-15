@@ -11,6 +11,7 @@ class User(db.Model):
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     comments = db.relationship('Comment', backref='commenter', lazy='dynamic')
     likes = db.relationship('Like', backref='liker', lazy='dynamic')
+    # shares = db.relationship('Share', backref='sharer', lazy='dynamic')
     followers = db.relationship('Follow', foreign_keys='Follow.follower_id', backref='follower', lazy='dynamic')
     followings = db.relationship('Follow', foreign_keys='Follow.following_id', backref='following', lazy='dynamic')
 
@@ -61,6 +62,17 @@ class Like(db.Model):
 
     def __init__(self, user_id, post_id):
         self.user_id = user_id
+        self.post_id = post_id
+
+class Share(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    def __init__(self, user_id, recipient_id, post_id):
+        self.user_id = user_id
+        self.recipient_id = recipient_id
         self.post_id = post_id
 
 class Img(db.Model):
