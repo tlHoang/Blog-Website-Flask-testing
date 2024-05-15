@@ -96,6 +96,16 @@
             background-color: transparent;
         }
 
+        #share-form {
+            display: none;
+            position: absolute;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1;
+        }
+
     </style>
 {% endblock %}
 
@@ -133,7 +143,15 @@
                         </svg>
                     </div>
                 </button>
+                <div id="share-form">
+                    <!-- Replace with actual user data -->
+                    <label><input type="checkbox" name="user" value="user1"> User 1</label>
+                    <label><input type="checkbox" name="user" value="user2"> User 2</label>
+                    <!-- Add more checkboxes for each user -->
+                    <button id="submit-button">Share</button>
+                </div>
             </div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/share.js') }}"></script>
 {% endblock %}

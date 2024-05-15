@@ -89,6 +89,17 @@ def like_action():
         'likeCount': getLikeNumber(post_id)
     }, 200
 
+# @app.post('/share_action')
+# def share_action():
+#     if 'user' not in session:
+#         return redirect(url_for('login'))
+#     data = request.json
+#     user_id = session['user']['id']
+#     post_id = data['postId']
+
+#     return {
+#         'shareCount': getShareNumber(post_id)
+#     }, 200
 ###
 
 @app.route('/')
