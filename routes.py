@@ -194,3 +194,11 @@ def register():
         else:
             flash(check, 'info')
     return render_template('register.html')
+
+@app.route('/discover')
+def discover():
+    if 'user' in session:
+        user_id = session['user']['id']
+        shared_posts = getAllSharedPostWithSharer(user_id)
+        return render_template('discover.html', shared_posts=shared_posts)
+    return redirect(url_for('index'))

@@ -262,6 +262,33 @@ def getPostFromPostID(post_id):
         'Imgs' : getAllImgOfPost(post.id)
     }
 
+def getAllSharedPostWithSharer(user_id):
+    shared_post_ids = db.session.query(Share.post_id).filter(Share.recipient_id == user_id).all()
+    shared_post_ids = [post_id[0] for post_id in shared_post_ids]  # Extract post_id from each tuple
+    app.logger.info(f"User {user_id} has {len(shared_post_ids)} shared posts")
+    shared_post_ids = list(set(shared_post_ids))  # Remove duplicate shared posts
+    app.logger.info(f"User {user_id} has {shared_post_ids} shared posts without duplicate")
+    shared_posts_with_sharer = []
+    for shared_post_id in shared_post_ids:
+        app.logger.info(f"Shared post id: {shared_post_id}")
+        sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == shared_post_id).distinct().all()
+        post = Post.query.filter_by(id=shared_post_id).first()
+        if post:
+            shared_posts_with_sharer.append({
+                'id': post.id,
+                'user_id': post.user_id,
+                'title': post.title,
+                'content': post.content,
+                'numComment': getCommentNumber(post.id),
+                'numLike': getLikeNumber(post.id),
+                'isLiked': checkUserLike(post.id, user_id),
+                'numImg' : getNumberImgPerPost(post.id),
+                'Imgs' : getAllImgOfPost(post.id),
+                'sharer_name': sharers_name  # Add the sharer's name to the post dictionary
+            })
+    app.logger.info(f"User {user_id} has {len(shared_posts_with_sharer)} shared posts with sharer")
+    return shared_posts_with_sharer
+
 def createImg(post_id, img, name, mimetype):
     img = Img(post_id, img, name, mimetype)
     db.session.add(img)
