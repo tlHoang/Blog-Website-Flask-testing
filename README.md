@@ -3,6 +3,10 @@
 
 # Installation
 Install neccessary library
+```shell
+pip install Flask
+pip install Flask-SQLAlchemy
+```
 
 # Run the app
 
