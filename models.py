@@ -90,8 +90,16 @@ class Img(db.Model):
         self.name = name
         self.mimetype = mimetype
 
-def create_user(username, nickname, email, password):
-    user = User(username, nickname, email, password)
+def check_createUser(username, email):
+    if User.query.filter_by(username=username).first():
+        return 'Username already exists!'
+    elif User.query.filter_by(email=email).first():
+        return 'Email already exists!'
+    else:
+        return ''
+
+def create_user(username, email, password):
+    user = User(username, email, password)
     db.session.add(user)
     db.session.commit()
     return user

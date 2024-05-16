@@ -178,10 +178,19 @@ def my_post():
     if 'user' in session:
         user_id = session['user']['id']
         my_post = getAllPost(user_id)
-        # print(my_post)
         return render_template('my_post.html', myPosts=my_post)
     return redirect(url_for('index'))
 
-@app.route('/register')
+@app.route('/register', methods = ['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        username = request.form['username_field']
+        email = request.form['email_field']
+        password = request.form['password_field']
+        check = check_createUser(username, email)
+        if check == '':
+            create_user(username, email, password)
+            flash("Your account has been successfully created!", 'info')
+        else:
+            flash(check, 'info')
     return render_template('register.html')
