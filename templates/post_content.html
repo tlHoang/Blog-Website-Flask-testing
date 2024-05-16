@@ -179,7 +179,7 @@
                             {% for nickname in nicknameList %}
                             <!-- Create a checkbox for each nickname -->
                             <label>
-                                <input type="checkbox" name="recipient_id" value="{{ nickname.id }}"> {{ nickname.nickname }}
+                                <input type="checkbox" name="recipientId" value="{{ nickname.id }}"> {{ nickname.nickname }}
                             </label>
                             {% endfor %}
                             <input type="hidden" name="postId" value="{{ post['id'] }}">

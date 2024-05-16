@@ -96,9 +96,10 @@ def share_action():
     user_id = session['user']['id']
     post_id = request.form.get('postId')
     recipient_ids = request.form.getlist('recipientId')
+    app.logger.info(f"Recipient ids recieve by share_action(): {recipient_ids}")
     for recipient_id in recipient_ids:
         sharePost(user_id, recipient_id, post_id)
-        app.logger.debug(f"User {user_id} shared post {post_id} to user {recipient_id}")
+        app.logger.info(f"User {user_id} shared post {post_id} to user {recipient_id}")
     return jsonify({}), 204
 ###
 
@@ -129,6 +130,7 @@ def login():
         checkUser = checkLogin(username, password)
         if checkUser:
             session['user'] = checkUser
+            app.logger.info(f"User {username} logged in successfully!")
             return redirect(url_for('index'))
     return render_template('login.html')
 
