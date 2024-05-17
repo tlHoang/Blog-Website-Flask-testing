@@ -83,15 +83,20 @@
             text-decoration: none;
             color: black;
         }
+        .name {
+            text-decoration: none;
+            color: #0000EE;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
-    {% if myPosts %}
-        {% for post in myPosts %}
+    {% if posts %}
+        {% for post in posts %}
             <div class="container">
                 <div class="card" style="box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
                     <div class="card-body">
+                        <a href="{{ url_for('user', user_id=post['user_id']) }}" class="name"><h4 class="card-title">{{ post['user_nickname'] }}</h4></a>
                         <h5 class="card-title">{{ post['title'] }}</h5>
                         <p class="card-text">{{ post['content'] }}</p>
                         <p class="card-text" title="{{ post['created_at'] }}"><small class="text-muted">{{ post['lastUpdated'] }}</small></p>

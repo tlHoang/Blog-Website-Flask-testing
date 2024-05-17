@@ -89,7 +89,7 @@
             </div>
             {% endif %}
         </div>
-        <p>Username: {{ user['username'] }}</p>
+        <p>Name: {{ user['nickname'] }}</p>
         <p>Email: {{ user['email'] }}</p>
         {% if is_my_profile == True %}
         <span>Password: </span>
@@ -105,12 +105,14 @@
         {% endif %}
     </div>
     <h3>User's Posts</h3>
+    {% if posts != None %}
     {% for post in posts %}
     <div class="post">
         <a href="{{ url_for('get_post_detail', post_id=post['id']) }}" class="post-name"><h3>{{ post['title'] }}</h3></a>
         <p>{{ post['content'] }}</p>
     </div>
     {% endfor %}
+    {% endif %}
 </div>
 {% if is_my_profile == True %}
 <div class="modal fade" id="changePasswordModal" tabindex="-1">

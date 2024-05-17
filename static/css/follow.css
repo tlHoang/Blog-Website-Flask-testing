@@ -1,9 +1,9 @@
 #followBtn {
     transition: all 0.3s ease;
     border: none;
-    background-color: rgb(172, 222, 255);
+    background-color: rgb(80, 167, 77);
     &:hover {
-        background-color: rgb(88, 188, 255);
+        background-color: rgb(34, 141, 40);
     }
 }
 

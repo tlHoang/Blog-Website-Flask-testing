@@ -5,40 +5,8 @@ from app import app
 import base64
 import html
 
-app.permanent_session_lifetime = timedelta(minutes=5)
+app.permanent_session_lifetime = timedelta(minutes=20)
 app.config['SECRET_KEY'] = 'tanphat'
-
-@app.get('/test_comment')
-def test_comment_page():
-    session['user'] = {
-        'id': 1
-    }
-    return render_template('test_comment.html')
-
-@app.post('/test_comment')
-def test_comment():
-    post_id = request.form.get('post_id')
-    comments = getCommentsFromPostId(post_id)
-    return render_template('test_comment_result.html', comments=comments)
-
-@app.get('/test_add_comment')
-def test_add_comment():
-    session['user'] = {
-        'id': 1
-    }
-    return render_template('test_add_comment.html', post_id=1)
-
-@app.post('/test_add_comment/<int:post_id>')
-def test_add_comment_post(post_id):
-    user_id = session['user']['id']
-    print(user_id)
-    if not user_id:
-        abort(403)
-    content = request.form.get('content')
-    createComment(user_id=user_id, post_id=post_id, content=content)
-    return redirect(url_for('test_add_comment'))
-
-###
 
 @app.get('/post_detail/post_id=<int:post_id>')
 def get_post_detail(post_id):
@@ -65,12 +33,20 @@ def new_comment():
     comment = createComment(data['postId'], data['userId'], data['content'])
     html_response = (
         "<div class='card-body comment-body'>"
-        f"<h6 class='card-title comment-title'>{getUsernameFromId(comment.user_id)}</h6>"
+        f"<a href='/user/user_id={comment.user_id}' class='name'><h6 class='card-title comment-title'>{getUsernameFromId(comment.user_id)}</h6></a>"
         f"<p class='card-text comment-content'>{html.escape(comment.content)}</p>"
         "<p class='card-text update-time text-muted'>Updated: just now </p>"
         "</div>"
     )
     return html_response, 200
+
+@app.get('/following_posts')
+def following_posts():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    posts = getPostsFromFollowing(session['user']['id'])
+    return render_template('following_posts.html', posts=posts)
+
 
 @app.post('/like_action')
 def like_action():

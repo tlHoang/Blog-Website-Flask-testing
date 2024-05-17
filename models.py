@@ -158,7 +158,9 @@ def getCommentsFromPostId(post_id):
             comment_dict = {
                 'user_id': comment.user_id,
                 'username': getUsernameFromId(comment.user_id),
+                'nickname': getNicknameFromId(comment.user_id),
                 'content': comment.content,
+                'created_at': comment.created_at,
                 'lastUpdated': getReadableTimeString(datetime.now() - comment.created_at)
             }
             comment_list.append(comment_dict)
@@ -195,6 +197,7 @@ def getUserFromId(user_id):
         return {
             'id': user.id,
             'username': user.username,
+            'nickname': user.nickname,
             'email': user.email
         }
     return None
@@ -221,6 +224,32 @@ def removeFollow(follower_id, following_id):
     db.session.commit()
     return follow
 
+def getPostsFromFollowing(user_id):
+    follows = Follow.query.filter_by(follower_id=user_id).all()
+    if not follows:
+        return None
+    following_ids = [follow.following_id for follow in follows]
+    posts = Post.query.filter(Post.user_id.in_(following_ids)).order_by(Post.created_at.desc()).limit(20).all()
+    post_list = []
+    for post in posts:
+        post_dict = {
+            'id': post.id,
+            'user_id': post.user_id,
+            'user_nickname': getNicknameFromId(post.user_id),
+            'title': post.title,
+            'content': post.content,
+            'numComment': getCommentNumber(post.id),
+            'comments': getCommentsFromPostId(post.id),
+            'numLike': getLikeNumber(post.id),
+            'isLiked': checkUserLike(post.id, user_id),
+            'numImg' : getNumberImgPerPost(post.id),
+            'Imgs' : getAllImgOfPost(post.id),
+            'created_at': post.created_at,
+            'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
+        }
+        post_list.append(post_dict)
+    return post_list
+
 def createFollow(follower_id, following_id):
     follow = Follow(follower_id, following_id)
     db.session.add(follow)
@@ -230,6 +259,10 @@ def createFollow(follower_id, following_id):
 def getUsernameFromId(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.username if user else None
+
+def getNicknameFromId(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    return user.nickname if user else None
 
 def getAllNickname():
     users = User.query.all()
@@ -256,6 +289,7 @@ def getPostDetailFromPostId(post_id, user_id=None):
         return {
             'id': post.id,
             'user_id': post.user_id,
+            'user_nickname': getNicknameFromId(post.user_id),
             'title': post.title,
             'content': post.content,
             'numComment': getCommentNumber(post.id),
@@ -264,6 +298,7 @@ def getPostDetailFromPostId(post_id, user_id=None):
             'isLiked': checkUserLike(post.id, user_id),
             'numImg' : getNumberImgPerPost(post.id),
             'Imgs' : getAllImgOfPost(post.id),
+            'created_at': post.created_at,
             'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
         }
     return None
@@ -289,6 +324,7 @@ def getAllPost(user_id):
                 'isLiked': checkUserLike(post.id, user_id),
                 'numImg' : getNumberImgPerPost(post.id),
                 'Imgs' : getAllImgOfPost(post.id),
+                'created_at': post.created_at,
                 'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
             }
             post_list.append(post_dict)
