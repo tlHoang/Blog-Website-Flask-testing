@@ -141,6 +141,18 @@ def update_password():
         'message': 'Password updated successfully'
     }, 200
 
+@app.post('/share_action')
+def share_action():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    user_id = session['user']['id']
+    post_id = request.form.get('postId')
+    recipient_ids = request.form.getlist('recipientId')
+    app.logger.info(f"Recipient ids recieve by share_action(): {recipient_ids}")
+    for recipient_id in recipient_ids:
+        sharePost(user_id, recipient_id, post_id)
+        app.logger.info(f"User {user_id} shared post {post_id} to user {recipient_id}")
+    return jsonify({}), 204
 ###
 
 @app.route('/')
@@ -154,10 +166,11 @@ def add():
         return render_template('add.html')
 
     username = request.form.get('username_field')
+    nickname = request.form.get('nickname_field')
     email = request.form.get('email_field')
     password = request.form.get('password_field')
 
-    user = create_user(username, email, password)
+    user = create_user(username, nickname, email, password)
     return render_template('add.html', user=user)
 
 @app.route('/login', methods = ['GET', 'POST'])
@@ -169,6 +182,7 @@ def login():
         checkUser = checkLogin(username, password)
         if checkUser:
             session['user'] = checkUser
+            app.logger.info(f"User {username} logged in successfully!")
             return redirect(url_for('index'))
     return render_template('login.html')
 
@@ -214,7 +228,11 @@ def post_bai():
                 createImg(post.id, base64_image, image.filename, image.mimetype)
 
         postWithImage = getPostFromPostID(post.id)
-        return render_template('post_content.html', post=postWithImage)
+        nicknameList = getAllNickname()
+        # Remove the current user from the nicknameList
+        nicknameList = [user for user in nicknameList if user['id'] != user_id]
+
+        return render_template('post_content.html', post=postWithImage, nicknameList=nicknameList)
     
     return redirect(url_for('login'))
 
@@ -223,10 +241,19 @@ def my_post():
     if 'user' in session:
         user_id = session['user']['id']
         my_post = getAllPost(user_id)
-        # print(my_post)
         return render_template('my_post.html', myPosts=my_post)
     return redirect(url_for('index'))
 
-@app.route('/register')
+@app.route('/register', methods = ['GET', 'POST'])
 def register():
+    if request.method == 'POST':
+        username = request.form['username_field']
+        email = request.form['email_field']
+        password = request.form['password_field']
+        check = check_createUser(username, email)
+        if check == '':
+            create_user(username, email, password)
+            flash("Your account has been successfully created!", 'info')
+        else:
+            flash(check, 'info')
     return render_template('register.html')

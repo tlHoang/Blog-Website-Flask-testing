@@ -6,16 +6,19 @@ from sqlalchemy import desc
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100))
+    nickname = db.Column(db.String(100))
     email = db.Column(db.String(100))
     password = db.Column(db.String(100))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
     comments = db.relationship('Comment', backref='commenter', lazy='dynamic')
     likes = db.relationship('Like', backref='liker', lazy='dynamic')
+    # shares = db.relationship('Share', backref='sharer', lazy='dynamic')
     followers = db.relationship('Follow', foreign_keys='Follow.follower_id', backref='follower', lazy='dynamic')
     followings = db.relationship('Follow', foreign_keys='Follow.following_id', backref='following', lazy='dynamic')
 
-    def __init__(self, username, email, password):
+    def __init__(self, username, nickname, email, password):
         self.username = username
+        self.nickname = nickname
         self.email = email
         self.password = password
 
@@ -64,6 +67,17 @@ class Like(db.Model):
         self.user_id = user_id
         self.post_id = post_id
 
+class Share(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
+
+    def __init__(self, user_id, recipient_id, post_id):
+        self.user_id = user_id
+        self.recipient_id = recipient_id
+        self.post_id = post_id
+
 class Img(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
@@ -77,6 +91,14 @@ class Img(db.Model):
         self.name = name
         self.mimetype = mimetype
 
+def check_createUser(username, email):
+    if User.query.filter_by(username=username).first():
+        return 'Username already exists!'
+    elif User.query.filter_by(email=email).first():
+        return 'Email already exists!'
+    else:
+        return ''
+
 def create_user(username, email, password):
     user = User(username, email, password)
     db.session.add(user)
@@ -89,6 +111,7 @@ def checkLogin(username, password):
         return {
             'id': loginUser.id,
             'username': loginUser.username,
+            'nickname': loginUser.nickname,
             'email': loginUser.email,
             # 'password': loginUser.password
         }
@@ -141,6 +164,13 @@ def getCommentsFromPostId(post_id):
             comment_list.append(comment_dict)
         return comment_list
     return None
+
+def sharePost(user_id, recipient_id, post_id):
+    share = Share(user_id, recipient_id, post_id)
+    db.session.add(share)
+    db.session.commit()
+    app.logger.debug(f"User {user_id} shared post {post_id} to user {recipient_id} successfully!")
+    return share
 
 def getReadableTimeString(time):
     if time.days == 0:
@@ -200,6 +230,19 @@ def createFollow(follower_id, following_id):
 def getUsernameFromId(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.username if user else None
+
+def getAllNickname():
+    users = User.query.all()
+    if users:
+        user_list = []
+        for user in users:
+            user_dict = {
+                'id': user.id,
+                'nickname': user.nickname
+            }
+            user_list.append(user_dict)
+        return user_list
+    return None
 
 def createComment(post_id, user_id, content):
     comment = Comment(user_id, post_id, content)
