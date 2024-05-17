@@ -135,12 +135,15 @@
                             <li class="nav-item">
                                 <a class="nav-link mx-lg-2" href="/my_post">My Posts</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link mx-lg-2" href="/following_posts">Following</a>
+                            </li>
                         {% endif %}
                     </ul>
                 </div>
             </div>
             {% if session['user'] %}
-                <a href="/user" class="username">{{session['user'].username}}</a>
+                <a href="/user/user_id={{ session['user']['id'] }}" class="username">{{session['user'].username}}</a>
                 <a href="/logout" class="logout-button">Logout</a>
             {% else %}
                 <a href="/login" class="login-button">Login</a>

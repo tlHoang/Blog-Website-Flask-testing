@@ -1,0 +1,15 @@
+#followBtn {
+    transition: all 0.3s ease;
+    border: none;
+    background-color: rgb(80, 167, 77);
+    &:hover {
+        background-color: rgb(34, 141, 40);
+    }
+}
+
+#followBtn.following {
+    background-color: rgb(255, 155, 155);
+    &:hover {
+        background-color: rgb(255, 88, 88);
+    }
+}
