@@ -2,82 +2,154 @@
 {% block title %}User profile{% endblock %}
 
 {% block css %}
-    <style>
-        .container {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            width: 50vw;
-            margin-top: 20px;
-            margin-bottom: 20px;
-        }
-        @media screen and (max-width: 600px) {
-            .container {
-                width: 95vw;
-            }
-        }
-        @media screen and (max-width: 992px) {
-            .container {
-                width: 85vw;
-            }
-        }
+<link rel="stylesheet" href="{{ url_for('static', filename='css/follow.css') }}">
+<style>
+    .container {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 0 20px;
+    }
 
-        .user-info {
-            margin-bottom: 20px;
-            text-align: center;
-        }
+    .user-info {
+        text-align: center;
+        margin-bottom: 30px;
+    }
 
-        .user-info h2 {
-            margin-bottom: 10px;
-        }
+    .user-info h2 {
+        margin-bottom: 10px;
+        color: #333;
+        display: inline-block;
+    }
 
-        .user-info p {
-            margin: 0;
-        }
+    #followBtn {
+        margin-bottom: 10px;
+    }
 
-        .post {
-            margin-bottom: 20px;
-            width: 100%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-sizing: border-box;
-        }
+    .user-info p {
+        margin: 5px 0;
+        color: #666;
+    }
 
-        .post h3 {
-            margin-top: 0;
-        }
+    .post {
+        margin-bottom: 30px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 20px;
+    }
 
-        .post p {
-            margin-bottom: 5px;
-        }
-    </style>
+    .post h3 {
+        margin-top: 0;
+    }
+
+    .post p {
+        margin-bottom: 10px;
+        color: #666;
+    }
+
+    .post p {
+        margin-bottom: 10px;
+        color: #666;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .edit {
+        display: block;
+    }
+
+    .noti {
+        color: red;
+    }
+
+    .post-name {
+        text-decoration: none;
+        color: #0000EE;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="user-info">
-        <h2>User Profile</h2>
-        <p>Name: John Doe</p>
-        <p>Email: johndoe@example.com</p>
-        <p>Joined: January 1, 2020</p>
+        <div class="header-container row">
+            <div class="col-4"></div>
+            <h2 class="col-4">User Profile</h2>
+            {% if is_my_profile == False %}
+            <div class="col-4">
+                {% if is_following == False %}
+                <button id="followBtn" class="btn btn-primary" data-follower-id="{{ session['user']['id'] }}"
+                    data-following-id="{{ user['id'] }}">Follow</button>
+                {% else %}
+                <button id="followBtn" class="btn btn-secondary following"
+                    data-follower-id="{{ session['user']['id'] }}"
+                    data-following-id="{{ user['id'] }}">Unfollow</button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        <p>Username: {{ user['username'] }}</p>
+        <p>Email: {{ user['email'] }}</p>
+        {% if is_my_profile == True %}
+        <span>Password: </span>
+        <button type="button" class="change-password btn btn-primary">
+            <svg class="edit" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                class="bi bi-pencil-square" viewBox="0 0 16 16">
+                <path
+                    d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                <path fill-rule="evenodd"
+                    d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+            </svg>
+        </button>
+        {% endif %}
     </div>
-
     <h3>User's Posts</h3>
+    {% for post in posts %}
     <div class="post">
-        <h3>Post Title 1</h3>
-        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec pretium eros id arcu pulvinar, nec fringilla libero tempor. Integer tristique quam eu augue ultricies, at posuere risus condimentum. Mauris vitae lectus eget ipsum accumsan feugiat. Vivamus elementum justo a libero fringilla, non hendrerit ligula semper. Sed in sapien aliquet, varius arcu sit amet, fermentum elit. Nulla facilisi.</p>
+        <a href="{{ url_for('get_post_detail', post_id=post['id']) }}" class="post-name"><h3>{{ post['title'] }}</h3></a>
+        <p>{{ post['content'] }}</p>
     </div>
-
-    <div class="post">
-        <h3>Post Title 2</h3>
-        <p>Maecenas nec purus eu velit lobortis pharetra ut nec justo. Mauris dignissim tristique est, eget malesuada magna ullamcorper a. Sed quis tortor pretium, gravida libero sit amet, volutpat lectus. Nullam et turpis id ex maximus dignissim a et augue. Sed semper quam vel ante pellentesque, vel fringilla leo rutrum. Maecenas in libero sit amet nisi maximus suscipit. Vestibulum sit amet mi odio.</p>
-    </div>
-
-    <div class="post">
-        <h3>Post Title 3</h3>
-        <p>Phasellus pharetra enim vitae massa consequat, ut tristique leo dignissim. Sed id justo sed ex consequat tincidunt ac non orci. Nulla non metus sed lacus dapibus laoreet. Aliquam volutpat, leo ac convallis convallis, elit nisi convallis nisi, eget volutpat ligula quam eget dolor. Nullam nec ipsum justo. Vivamus at diam non libero auctor convallis ut in quam.</p>
+    {% endfor %}
+</div>
+{% if is_my_profile == True %}
+<div class="modal fade" id="changePasswordModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalLabel">Change password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <input type="hidden" id="userId" value="{{ user['id'] }}">
+                    <div class="form-group">
+                        <label for="currentPassword">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                </form>
+                <span class="noti"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a class="btn btn-outline-success edit-password" role="button" style="margin-right: 5px;">Change</a>
+            </div>
+        </div>
     </div>
 </div>
+{% endif %}
+
+{% if is_my_profile == False %}
+<script src="{{ url_for('static', filename='js/follow.js') }}"></script>
+{% else %}
+<script src="{{ url_for('static', filename='js/changePassword.js') }}"></script>
+{% endif %}
 {% endblock %}

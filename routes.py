@@ -91,9 +91,55 @@ def like_action():
         'likeCount': getLikeNumber(post_id)
     }, 200
 
+@app.post('/follow_action')
+def follow_action():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    data = request.json
+    followerId = data['followerId']
+    followingId = data['followingId']
+    if str(followerId) != str(session['user']['id']):
+        return {
+            'message': 'User ID is incorrect'
+        }, 401
+    if checkFollowing(followerId, followingId):
+        removeFollow(followerId, followingId)
+        return {
+            'followStatus': 'remove'
+        }, 200
+    createFollow(followerId, followingId)
+    return {
+        'followStatus': 'add'
+    }, 200
+
 @app.get('/user_profile')
 def user_profile():
-    return render_template('user_profile.html')
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    posts = getAllPost(session['user']['id'])
+    return render_template('user_profile.html', posts=posts)
+
+@app.post('/update_password')
+def update_password():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+    data = request.json
+    if str(data['userId']) != str(session['user']['id']):
+        return {
+            'message': 'User ID is incorrect'
+        }, 401
+    if data['newPassword'] == '':
+        return {
+            'message': 'New password cannot be empty'
+        }, 400
+    if not checkPassword(data['userId'], data['currentPassword']):
+        return {
+            'message': 'Current password is incorrect'
+        }, 401
+    updatePassword(data['userId'], data['newPassword'])
+    return {
+        'message': 'Password updated successfully'
+    }, 200
 
 ###
 
@@ -126,10 +172,21 @@ def login():
             return redirect(url_for('index'))
     return render_template('login.html')
 
-@app.route('/user')
-def user():
+@app.route('/user/user_id=<int:user_id>')
+def user(user_id=None):
+    is_my_profile = False
+    is_following = False
     if 'user' in session:
-        return session['user']
+        if session['user']['id'] is user_id and user_id is not None:
+            is_my_profile = True
+        else:
+            is_following = checkFollowing(session['user']['id'], user_id)
+
+        posts = getAllPost(user_id)
+        user = getUserFromId(user_id)
+        return render_template('user_profile.html', user=user, posts=posts, is_my_profile=is_my_profile, is_following=is_following)
+    return redirect(url_for('login'))
+    # con 1 truong hop la user chua dang nhap, tam thoi se chuyen ve trang login
 
 @app.get('/logout')
 def logout():

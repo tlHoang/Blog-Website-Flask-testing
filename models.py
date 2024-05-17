@@ -90,7 +90,7 @@ def checkLogin(username, password):
             'id': loginUser.id,
             'username': loginUser.username,
             'email': loginUser.email,
-            'password': loginUser.password
+            # 'password': loginUser.password
         }
     return None
 
@@ -159,6 +159,44 @@ def getReadableTimeString(time):
         else:
             return f"{days} days ago"
 
+def getUserFromId(user_id):
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+        return {
+            'id': user.id,
+            'username': user.username,
+            'email': user.email
+        }
+    return None
+
+def checkPassword(user_id, password):
+    user = User.query.filter_by(id=user_id).first()
+    if user:
+        return user.password == password
+    return False
+
+def updatePassword(user_id, password):
+    user = User.query.filter_by(id=user_id).first()
+    user.password = password
+    db.session.commit()
+    return user
+
+def checkFollowing(follower_id, following_id):
+    follow = Follow.query.filter_by(follower_id=follower_id, following_id=following_id).first()
+    return True if follow else False
+
+def removeFollow(follower_id, following_id):
+    follow = Follow.query.filter_by(follower_id=follower_id, following_id=following_id).first()
+    db.session.delete(follow)
+    db.session.commit()
+    return follow
+
+def createFollow(follower_id, following_id):
+    follow = Follow(follower_id, following_id)
+    db.session.add(follow)
+    db.session.commit()
+    return follow
+
 def getUsernameFromId(user_id):
     user = User.query.filter_by(id=user_id).first()
     return user.username if user else None
@@ -202,7 +240,7 @@ def getAllPost(user_id):
                 'id': post.id,
                 'user_id': post.user_id,
                 'title': post.title,
-                'content': post.content,
+                'content': post.content[:100],
                 'numComment': getCommentNumber(post.id),
                 'numLike': getLikeNumber(post.id),
                 'isLiked': checkUserLike(post.id, user_id),

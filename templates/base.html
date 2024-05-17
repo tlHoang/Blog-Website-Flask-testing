@@ -39,7 +39,7 @@
                 </ul>
                 <form class="d-flex">
                     {% if session['user'] %}
-                        <a class="btn btn-outline-info" href="/user" role="button" style="margin-right: 5px;">{{session['user'].username}}</a>
+                        <a class="btn btn-outline-info" href="/user/user_id={{ session['user']['id'] }}" role="button" style="margin-right: 5px;">{{session['user'].username}}</a>
                         <a class="btn btn-outline-danger" href="/logout" role="button">Logout</a>
                     {% else %}
                         <a class="btn btn-outline-success" href="/login" role="button" style="margin-right: 5px;">Login</a>
