@@ -92,7 +92,7 @@
         {% for shared_post in shared_posts %}
             <div class="container">
                 <div class="card" style="box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
-                    <div class="card-head">{{ shared_post['sharer_name'] | join(', ') }} shared this post with you</div>
+                    <div class="card-head">{{ shared_post['sharer_name'] }} shared this post with you</div>
                     <div class="card-body">
                         <h5 class="card-title">{{ shared_post['title'] }}</h5>
                         <p class="card-text">{{ shared_post['content'] }}</p>

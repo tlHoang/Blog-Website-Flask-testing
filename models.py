@@ -309,8 +309,30 @@ def getUserIdFromPostId(post_id):
         return post.user_id
     return None
 
-def getAllPost(user_id):
+def getAllPostFromUserId(user_id):
     posts = Post.query.filter_by(user_id=user_id).order_by(desc(Post.id)).all()
+    if posts:
+        post_list = []
+        for post in posts:
+            post_dict = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'title': post.title,
+                'content': post.content[:100],
+                'numComment': getCommentNumber(post.id),
+                'numLike': getLikeNumber(post.id),
+                'isLiked': checkUserLike(post.id, user_id),
+                'numImg' : getNumberImgPerPost(post.id),
+                'Imgs' : getAllImgOfPost(post.id),
+                'created_at': post.created_at,
+                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
+            }
+            post_list.append(post_dict)
+        return post_list
+    return None
+
+def getAllPost(user_id=None): # user_id to check if user liked the post
+    posts = Post.query.order_by(desc(Post.id)).all()
     if posts:
         post_list = []
         for post in posts:
@@ -352,6 +374,8 @@ def getAllSharedPostWithSharer(user_id):
     for shared_post_id in shared_post_ids:
         app.logger.info(f"Shared post id: {shared_post_id}")
         sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == shared_post_id).distinct().all()
+        sharers_name = ', '.join([sharer_name[0] for sharer_name in sharers_name])
+        app.logger.info(f"Sharers name: {sharers_name}")
         post = Post.query.filter_by(id=shared_post_id).first()
         if post:
             shared_posts_with_sharer.append({

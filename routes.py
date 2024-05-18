@@ -92,7 +92,7 @@ def follow_action():
 def user_profile():
     if 'user' not in session:
         return redirect(url_for('login'))
-    posts = getAllPost(session['user']['id'])
+    posts = getAllPostFromUserId(session['user']['id'])
     return render_template('user_profile.html', posts=posts)
 
 @app.post('/update_password')
@@ -133,7 +133,12 @@ def share_action():
 
 @app.route('/')
 def index():
-    return render_template('home.html')
+    if 'user' in session:
+        user_id = session['user']['id']
+        shared_posts = getAllSharedPostWithSharer(user_id)
+        posts = shared_posts + getAllPost(user_id)
+        return render_template('home.html', posts=posts)
+    return render_template('home.html', posts=getAllPost())
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -172,7 +177,7 @@ def user(user_id=None):
         else:
             is_following = checkFollowing(session['user']['id'], user_id)
 
-        posts = getAllPost(user_id)
+        posts = getAllPostFromUserId(user_id)
         user = getUserFromId(user_id)
         return render_template('user_profile.html', user=user, posts=posts, is_my_profile=is_my_profile, is_following=is_following)
     return redirect(url_for('login'))
@@ -216,7 +221,7 @@ def post_bai():
 def my_post():
     if 'user' in session:
         user_id = session['user']['id']
-        my_post = getAllPost(user_id)
+        my_post = getAllPostFromUserId(user_id)
         return render_template('my_post.html', myPosts=my_post)
     return redirect(url_for('index'))
 
@@ -236,8 +241,4 @@ def register():
 
 @app.route('/discover')
 def discover():
-    if 'user' in session:
-        user_id = session['user']['id']
-        shared_posts = getAllSharedPostWithSharer(user_id)
-        return render_template('discover.html', shared_posts=shared_posts)
-    return redirect(url_for('index'))
+    return redirect(url_for('discover'))
