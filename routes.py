@@ -241,4 +241,4 @@ def register():
 
 @app.route('/discover')
 def discover():
-    return redirect(url_for('discover'))
+    return render_template('discover.html', posts=getAllPost())
