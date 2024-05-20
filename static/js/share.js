@@ -1,8 +1,8 @@
-// Get the modal
-var modal = document.getElementById("share-modal");
+var currentModal;
 
 // Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
+var spans = document.getElementsByClassName("close");
+spans = Array.from(spans);
 
 var submitButton = document.getElementById('share-submit');
 
@@ -12,24 +12,32 @@ shareButtons.forEach((btn) => {
 })
 function shareButtonClicked(event) {
     // event.preventDefault();
-    const postId = event.target.dataset.postId;
-    const shareForm = document.getElementById('share-form');
-    modal.dataset.postId = postId;
+    const postId = event.currentTarget.dataset.postId;
+    console.log(postId);
+    var modal = document.querySelector('.modal[data-post-id="' + postId + '"]');
+    if (modal !== null) {
+        modal.style.display = 'block';
+    } else {
+        console.error(postId + ' not found ' + event.currentTarget);
+    }
+    currentModal = modal;
     modal.style.display = 'block';
 }
 
 // When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-    modal.style.display = "none";
-}
+spans.forEach((span) => {
+    span.onclick = function() {
+        currentModal.style.display = "none";
+    }
+});
 
 submitButton.onclick = function() {
-    modal.style.display = "none";
+    currentModal.style.display = "none";
 }
 
 // When the user clicks anywhere outside of the modal, close it
 window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
+    if (event.target == currentModal) {
+        currentModal.style.display = "none";
     }
 }

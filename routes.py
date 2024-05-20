@@ -44,7 +44,8 @@ def new_comment():
 def following_posts():
     if 'user' not in session:
         return redirect(url_for('login'))
-    posts = getPostsFromFollowing(session['user']['id'])
+    user_id = session['user']['id']
+    posts = getPostsFromFollowing(user_id)
     return render_template('following_posts.html', posts=posts)
 
 
@@ -242,3 +243,6 @@ def register():
 @app.route('/discover')
 def discover():
     return render_template('discover.html', posts=getAllPost())
+
+# @app.route('/search/query=<string:query>&category=<string:category>')
+# def search():

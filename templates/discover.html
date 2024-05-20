@@ -84,6 +84,11 @@
             color: black;
         }
 
+        .name {
+            text-decoration: none;
+            color: #0000EE;
+        }
+
     </style>
 {% endblock %}
 
@@ -118,6 +123,7 @@
                     <div class="card-head">{{ post['sharer_name'] }} shared this post with you</div>
                     {% endif %}
                     <div class="card-body">
+                        <a href="{{ url_for('user', user_id=post['user_id']) }}" class="name"><h4 class="card-title">{{ post['user_nickname'] }}</h4></a>
                         <h5 class="card-title">{{ post['title'] }}</h5>
                         <p class="card-text">{{ post['content'] }}</p>
                         <p class="card-text"><small class="text-muted">Last updated 3 mins ago</small></p>
