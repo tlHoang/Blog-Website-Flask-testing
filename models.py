@@ -91,16 +91,18 @@ class Img(db.Model):
         self.name = name
         self.mimetype = mimetype
 
-def check_createUser(username, email):
+def check_createUser(username, nickname, email):
     if User.query.filter_by(username=username).first():
         return 'Username already exists!'
+    elif User.query.filter_by(nickname=nickname).first():
+        return 'Nickname already exists!'
     elif User.query.filter_by(email=email).first():
         return 'Email already exists!'
     else:
         return ''
 
-def create_user(username, email, password):
-    user = User(username, email, password)
+def create_user(username, nickname, email, password):
+    user = User(username, nickname, email, password)
     db.session.add(user)
     db.session.commit()
     return user
@@ -318,7 +320,7 @@ def getAllPost(user_id):
                 'id': post.id,
                 'user_id': post.user_id,
                 'title': post.title,
-                'content': post.content[:100],
+                'content': post.content,
                 'numComment': getCommentNumber(post.id),
                 'numLike': getLikeNumber(post.id),
                 'isLiked': checkUserLike(post.id, user_id),

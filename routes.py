@@ -224,11 +224,12 @@ def my_post():
 def register():
     if request.method == 'POST':
         username = request.form['username_field']
+        nickname = request.form['nickname_field']
         email = request.form['email_field']
         password = request.form['password_field']
-        check = check_createUser(username, email)
+        check = check_createUser(username, nickname, email)
         if check == '':
-            create_user(username, email, password)
+            create_user(username, nickname, email, password)
             flash("Your account has been successfully created!", 'info')
         else:
             flash(check, 'info')
