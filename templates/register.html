@@ -64,6 +64,10 @@
                     <td><input id="username" name="username_field" type="text" required/></td>
                 </tr>
                 <tr>
+                    <td><label for="nickname">Nickname</label></td>
+                    <td><input id="nickname" name="nickname_field" type="text" required/></td>
+                </tr>
+                <tr>
                     <td><label for="email">Email</label></td>
                     <td><input id="email" name="email_field" type="text" required/></td>
                 </tr>
@@ -92,6 +96,7 @@
     <script>
         function validateForm(){
             var username = document.getElementById('username').value
+            var nickname = document.getElementById('nickname').value
             var email = document.getElementById('email').value
             var pass = document.getElementById('password').value
             var c_pass = document.getElementById('cpassword').value
