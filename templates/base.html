@@ -110,6 +110,41 @@
                 visibility: visible;
             }
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            padding-top: 10px;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
     </style>
     {% block css %}{% endblock %}
 </head>
@@ -128,6 +163,9 @@
                         {% if session['user'] %}
                             <li class="nav-item">
                                 <a class="nav-link mx-lg-2" href="#">Discover</a>
+                            </li>
+                            <li class="nav-item">
+                                <span class="nav-link mx-lg-2" id="searchNav" style="cursor: pointer;">Search</span>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link mx-lg-2" href="/post">Create Post</a>
@@ -157,6 +195,54 @@
     <div style="width: 100%; margin-top: 120px;">
         {% block content %}{% endblock %}
     </div>
+
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="form-inline">
+                <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" style="margin-bottom: 10px;">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-primary" id="searchType">Post</button>
+                    <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu" style="cursor: pointer;">
+                        <li><a class="dropdown-item">Post</a></li>
+                        <li><a class="dropdown-item">Nickname</a></li>
+                    </ul>
+                </div>
+                <button class="btn btn-outline-success my-2 my-sm-0" type="submit" style="margin-left: 5px;">Search</button>
+            </div>
+        </div>
+
+    </div>
+    <script>
+        var modal = document.getElementById("myModal")
+        var btn = document.getElementById("searchNav")
+        var span = document.getElementsByClassName("close")[0]
+
+        // open the modal 
+        btn.onclick = function() {
+            modal.style.display = "block"
+        }
+
+        // close the modal
+        span.onclick = function() {
+            modal.style.display = "none"
+        }
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none"
+            }
+        }
+
+        document.querySelectorAll(".dropdown-item").forEach(item => {
+            item.addEventListener('click', function() {
+                var text = this.textContent
+                document.getElementById("searchType").innerText = text
+            })
+        })
+    </script>
 </body>
 
 </html>
