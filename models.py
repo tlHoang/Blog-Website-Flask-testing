@@ -2,7 +2,6 @@ from app import db, app
 from datetime import datetime
 from os import path
 from sqlalchemy import desc
-from sqlalchemy import not_
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -282,6 +281,7 @@ def getAllNickname():
     return None
 
 def getUnsharedUserNickname(post_id, sharer_id=None):
+    app.logger.info(f"Sharer id: {sharer_id}")
     # Check if post_id is in the Share table
     share_exists = db.session.query(Share).filter_by(post_id=post_id, user_id=sharer_id).first()
 
@@ -295,7 +295,7 @@ def getUnsharedUserNickname(post_id, sharer_id=None):
     unshared_users = [user for user in unshared_users if user.id != sharer_id]
     # Get the nicknames of these users
     unshared_user_nicknames = [{'user_id': user.id, 'nickname': user.nickname} for user in unshared_users]
-
+    app.logger.info(f"Unshared users: {unshared_user_nicknames}")
     return unshared_user_nicknames
 
 def createComment(post_id, user_id, content):
@@ -380,7 +380,7 @@ def getAllPost(user_id=None): # user_id to check if user liked the post
                 'Imgs' : getAllImgOfPost(post.id),
                 'created_at': post.created_at,
                 'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-                'sharer_name': getSharersName(post.id),
+                'sharer_name': getSharersName(post.id, user_id),
                 'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             }
             post_list.append(post_dict)
@@ -426,7 +426,7 @@ def getAllSharedPost(user_id):
     shared_posts_with_sharer = []
     for shared_post_id in shared_post_ids:
         app.logger.info(f"Shared post id: {shared_post_id}")
-        sharers_name = getSharersName(shared_post_id)
+        sharers_name = getSharersName(shared_post_id, user_id=user_id)
         app.logger.info(f"Sharers name: {sharers_name}")
         post = Post.query.filter_by(id=shared_post_id).first()
         if post:
@@ -472,10 +472,44 @@ def getAllImgOfPost(post_id):
         return image_list
     return None
 
-def getSharersName(post_id):
-    sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == post_id).distinct().all()
+def getSharersName(post_id, user_id=None):
+    if user_id is None:
+        return None
+    sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == post_id, Share.recipient_id==user_id).distinct().all()
     sharers_name = ', '.join([sharer_name[0] for sharer_name in sharers_name])
     return sharers_name
+
+def searchWithCategory(query, category, user_id=None):
+    if category == '1':  # Search in Post's title
+        results = db.session.query(Post).filter(Post.title.contains(query)).all()
+    elif category == '2': # Search in Post's content 
+        results = db.session.query(Post).filter(Post.content.contains(query)).all()
+    else: # Search in User's posts
+        results = db.session.query(Post).join(User).filter(User.nickname.contains(query)).all()
+    if results:
+        post_list = []
+        for post in results:
+            post_dict = {
+                'id': post.id,
+                'user_id': post.user_id,
+                'user_nickname': getNicknameFromId(post.user_id),
+                'title': post.title,
+                'content': post.content,
+                'numComment': getCommentNumber(post.id),
+                'comments': getCommentsFromPostId(post.id),
+                'numLike': getLikeNumber(post.id),
+                'isLiked': checkUserLike(post.id, user_id),
+                'numShare': getShareNumber(post.id),
+                'numImg' : getNumberImgPerPost(post.id),
+                'Imgs' : getAllImgOfPost(post.id),
+                'created_at': post.created_at,
+                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
+                'sharer_name': getSharersName(post.id),
+                'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
+            }
+            post_list.append(post_dict)
+    post_list.append(post_dict)
+    return post_list
 
 if __name__ == "__main__":
     with app.app_context():

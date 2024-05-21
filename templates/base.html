@@ -198,12 +198,14 @@
                                 <span class="close">&times;</span>
                                 <h3>Choose who to share</h3>
                                 <form action="/share_action" method="post">
+                                    {% if post['unsharedUserNickname'] %}
                                     {% for nickname in post['unsharedUserNickname'] %}
                                     <!-- Create a checkbox for each nickname -->
                                     <label>
                                         <input type="checkbox" name="recipientId" value="{{ nickname.user_id }}"> {{ nickname.nickname }}
                                     </label>
                                     {% endfor %}
+                                    {% endif %}
                                     <input type="hidden" name="postId" value="{{ post['id'] }}">
                                     <button type="submit" id="share-submit">Share</button>
                                 </form>

@@ -136,6 +136,7 @@ def share_action():
 def index():
     if 'user' in session:
         user_id = session['user']['id']
+        app.logger.info(f"From index() {user_id}")
         shared_posts = getAllSharedPost(user_id)
         return render_template('home.html', posts=shared_posts)
     return render_template('home.html', posts=getAllPost())
@@ -243,5 +244,11 @@ def discover():
         user_id = session['user']['id']
     return render_template('discover.html', posts=getAllPost(user_id))
 
-# @app.route('/search/query=<string:query>&category=<string:category>')
-# def search():
+@app.route('/search')
+def search():
+    if 'user' in session:
+        user_id = session['user']['id']
+    query = request.args.get('query')
+    category = request.args.get('category')
+    results = searchWithCategory(query, category, user_id)
+    return render_template('discover.html', posts=results)
