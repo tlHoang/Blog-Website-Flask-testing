@@ -233,7 +233,7 @@ def getPostsFromFollowing(user_id):
     posts = Post.query.filter(Post.user_id.in_(following_ids)).order_by(Post.created_at.desc()).limit(20).all()
     post_list = []
     for post in posts:
-        unsharedUserNickname = getUnsharedUserNickname(post.id)
+        unsharedUserNickname = getUnsharedUserNickname(post.id, user_id)
         app.logger.info(f"Unshared users nickname: {unsharedUserNickname}")
         post_dict = {
             'id': post.id,
@@ -282,17 +282,18 @@ def getAllNickname():
         return user_list
     return None
 
-def getUnsharedUserNickname(post_id):
+def getUnsharedUserNickname(post_id, sharer_id=None):
     # Check if post_id is in the Share table
     share_exists = db.session.query(Share).filter_by(post_id=post_id).first()
 
     if share_exists:
         # If post_id is in the Share table, get users who are not in the recipient_id attribute of the Share table
-        unshared_users = db.session.query(User).outerjoin(Share, User.id == Share.recipient_id).filter(not_(User.id.in_(db.session.query(Share.recipient_id))), User.id != post_id).all()
+        unshared_users = db.session.query(User).outerjoin(Share, User.id == Share.recipient_id).filter(not_(User.id.in_(db.session.query(Share.recipient_id)))).all()
     else:
         # If post_id is not in the Share table, get all users
         unshared_users = db.session.query(User).all()
-
+    
+    unshared_users = [user for user in unshared_users if user.id != sharer_id]
     # Get the nicknames of these users
     unshared_user_nicknames = [{'user_id': user.id, 'nickname': user.nickname} for user in unshared_users]
 

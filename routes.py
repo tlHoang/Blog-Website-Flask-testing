@@ -129,7 +129,7 @@ def share_action():
     for recipient_id in recipient_ids:
         sharePost(user_id, recipient_id, post_id)
         app.logger.info(f"User {user_id} shared post {post_id} to user {recipient_id}")
-    return jsonify({}), 204
+    return redirect(url_for('following_posts'))
 ###
 
 @app.route('/')
