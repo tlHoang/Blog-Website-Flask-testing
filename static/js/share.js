@@ -11,7 +11,6 @@ shareButtons.forEach((btn) => {
     btn.addEventListener('click', (event) => shareButtonClicked(event))
 })
 function shareButtonClicked(event) {
-    // event.preventDefault();
     const postId = event.currentTarget.dataset.postId;
     console.log(postId);
     var modal = document.querySelector('.modal[data-post-id="' + postId + '"]');

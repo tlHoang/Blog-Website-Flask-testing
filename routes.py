@@ -129,16 +129,15 @@ def share_action():
     for recipient_id in recipient_ids:
         sharePost(user_id, recipient_id, post_id)
         app.logger.info(f"User {user_id} shared post {post_id} to user {recipient_id}")
-    return redirect(url_for('following_posts'))
+    return redirect(request.referrer or url_for('index'))
 ###
 
 @app.route('/')
 def index():
     if 'user' in session:
         user_id = session['user']['id']
-        shared_posts = getAllSharedPostWithSharer(user_id)
-        posts = shared_posts + getAllPost(user_id)
-        return render_template('home.html', posts=posts)
+        shared_posts = getAllSharedPost(user_id)
+        return render_template('home.html', posts=shared_posts)
     return render_template('home.html', posts=getAllPost())
 
 @app.route('/add', methods=['GET', 'POST'])
@@ -172,6 +171,7 @@ def login():
 def user(user_id=None):
     is_my_profile = False
     is_following = False
+    app.logger.info(f"profile user_id: {user_id}")
     if 'user' in session:
         if session['user']['id'] is user_id and user_id is not None:
             is_my_profile = True
@@ -208,13 +208,10 @@ def post_bai():
                 image_data = image.read()
                 base64_image = base64.b64encode(image_data).decode('utf-8')
                 createImg(post.id, base64_image, image.filename, image.mimetype)
-
-        postWithImage = getPostFromPostID(post.id)
-        nicknameList = getAllNickname()
-        # Remove the current user from the nicknameList
-        nicknameList = [user for user in nicknameList if user['id'] != user_id]
-
-        return render_template('post_content.html', post=postWithImage, nicknameList=nicknameList)
+        app.logger.info(f"User {user_id} created post {post}")
+        postWithImage = getPostFromPostID(post.id, user_id)
+        app.logger.info(f"User {user_id} created post with image {postWithImage}")
+        return render_template('post_content.html', posts=postWithImage)
     
     return redirect(url_for('login'))
 
@@ -223,7 +220,7 @@ def my_post():
     if 'user' in session:
         user_id = session['user']['id']
         my_post = getAllPostFromUserId(user_id)
-        return render_template('my_post.html', myPosts=my_post)
+        return render_template('my_post.html', posts=my_post)
     return redirect(url_for('index'))
 
 @app.route('/register', methods = ['GET', 'POST'])
@@ -242,7 +239,9 @@ def register():
 
 @app.route('/discover')
 def discover():
-    return render_template('discover.html', posts=getAllPost())
+    if 'user' in session:
+        user_id = session['user']['id']
+    return render_template('discover.html', posts=getAllPost(user_id))
 
 # @app.route('/search/query=<string:query>&category=<string:category>')
 # def search():

@@ -233,8 +233,6 @@ def getPostsFromFollowing(user_id):
     posts = Post.query.filter(Post.user_id.in_(following_ids)).order_by(Post.created_at.desc()).limit(20).all()
     post_list = []
     for post in posts:
-        unsharedUserNickname = getUnsharedUserNickname(post.id, user_id)
-        app.logger.info(f"Unshared users nickname: {unsharedUserNickname}")
         post_dict = {
             'id': post.id,
             'user_id': post.user_id,
@@ -250,7 +248,8 @@ def getPostsFromFollowing(user_id):
             'Imgs' : getAllImgOfPost(post.id),
             'created_at': post.created_at,
             'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-            'unsharedUserNickname': unsharedUserNickname
+            'sharer_name': getSharersName(post.id),
+            'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
         }
         post_list.append(post_dict)
     return post_list
@@ -284,11 +283,11 @@ def getAllNickname():
 
 def getUnsharedUserNickname(post_id, sharer_id=None):
     # Check if post_id is in the Share table
-    share_exists = db.session.query(Share).filter_by(post_id=post_id).first()
+    share_exists = db.session.query(Share).filter_by(post_id=post_id, user_id=sharer_id).first()
 
     if share_exists:
         # If post_id is in the Share table, get users who are not in the recipient_id attribute of the Share table
-        unshared_users = db.session.query(User).outerjoin(Share, User.id == Share.recipient_id).filter(not_(User.id.in_(db.session.query(Share.recipient_id)))).all()
+        unshared_users = db.session.query(User).outerjoin(Share, (User.id == Share.recipient_id) & (Share.post_id == post_id)).filter(Share.id == None).all()
     else:
         # If post_id is not in the Share table, get all users
         unshared_users = db.session.query(User).all()
@@ -318,10 +317,13 @@ def getPostDetailFromPostId(post_id, user_id=None):
             'comments': getCommentsFromPostId(post.id),
             'numLike': getLikeNumber(post.id),
             'isLiked': checkUserLike(post.id, user_id),
+            'numShare': getShareNumber(post.id),
             'numImg' : getNumberImgPerPost(post.id),
             'Imgs' : getAllImgOfPost(post.id),
             'created_at': post.created_at,
-            'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
+            'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
+            'sharer_name': getSharersName(post.id),
+            'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
         }
     return None
 
@@ -341,15 +343,18 @@ def getAllPostFromUserId(user_id):
                 'user_id': post.user_id,
                 'user_nickname': getNicknameFromId(post.user_id),
                 'title': post.title,
-                'content': post.content[:100],
+                'content': post.content,
                 'numComment': getCommentNumber(post.id),
+                'comments': getCommentsFromPostId(post.id),
                 'numLike': getLikeNumber(post.id),
                 'isLiked': checkUserLike(post.id, user_id),
                 'numShare': getShareNumber(post.id),
                 'numImg' : getNumberImgPerPost(post.id),
                 'Imgs' : getAllImgOfPost(post.id),
                 'created_at': post.created_at,
-                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
+                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
+                'sharer_name': getSharersName(post.id),
+                'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             }
             post_list.append(post_dict)
         return post_list
@@ -365,36 +370,54 @@ def getAllPost(user_id=None): # user_id to check if user liked the post
                 'user_id': post.user_id,
                 'user_nickname': getNicknameFromId(post.user_id),
                 'title': post.title,
-                'content': post.content[:100],
+                'content': post.content,
                 'numComment': getCommentNumber(post.id),
+                'comments': getCommentsFromPostId(post.id),
                 'numLike': getLikeNumber(post.id),
                 'isLiked': checkUserLike(post.id, user_id),
                 'numShare': getShareNumber(post.id),
                 'numImg' : getNumberImgPerPost(post.id),
                 'Imgs' : getAllImgOfPost(post.id),
                 'created_at': post.created_at,
-                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at)
+                'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
+                'sharer_name': getSharersName(post.id),
+                'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             }
             post_list.append(post_dict)
         return post_list
     return None
 
-def getPostFromPostID(post_id):
+def getPostFromPostID(post_id, user_id=None):
     post = Post.query.filter_by(id=post_id).first()
-    return {
-        'id': post.id,
-        'user_id': post.user_id,
-        'title': post.title,
-        'content': post.content,
-        'numImg' : getNumberImgPerPost(post.id),
-        'Imgs' : getAllImgOfPost(post.id)
-    }
+    if post:
+        post_list = []
+        post_dict = {
+            'id': post.id,
+            'user_id': post.user_id,
+            'user_nickname': getNicknameFromId(post.user_id),
+            'title': post.title,
+            'content': post.content,
+            'numComment': getCommentNumber(post.id),
+            'comments': getCommentsFromPostId(post.id),
+            'numLike': getLikeNumber(post.id),
+            'isLiked': checkUserLike(post.id, user_id),
+            'numShare': getShareNumber(post.id),
+            'numImg' : getNumberImgPerPost(post.id),
+            'Imgs' : getAllImgOfPost(post.id),
+            'created_at': post.created_at,
+            'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
+            'sharer_name': getSharersName(post.id),
+            'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
+        }
+        post_list.append(post_dict)
+        return post_list
+    return None
 
 def getShareNumber(post_id):
     shares = Share.query.filter_by(post_id=post_id).all()
     return len(shares)
 
-def getAllSharedPostWithSharer(user_id):
+def getAllSharedPost(user_id):
     shared_post_ids = db.session.query(Share.post_id).filter(Share.recipient_id == user_id).all()
     shared_post_ids = [post_id[0] for post_id in shared_post_ids]  # Extract post_id from each tuple
     app.logger.info(f"User {user_id} has {len(shared_post_ids)} shared posts")
@@ -403,8 +426,7 @@ def getAllSharedPostWithSharer(user_id):
     shared_posts_with_sharer = []
     for shared_post_id in shared_post_ids:
         app.logger.info(f"Shared post id: {shared_post_id}")
-        sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == shared_post_id).distinct().all()
-        sharers_name = ', '.join([sharer_name[0] for sharer_name in sharers_name])
+        sharers_name = getSharersName(shared_post_id)
         app.logger.info(f"Sharers name: {sharers_name}")
         post = Post.query.filter_by(id=shared_post_id).first()
         if post:
@@ -420,7 +442,8 @@ def getAllSharedPostWithSharer(user_id):
                 'numShare': getShareNumber(post.id),
                 'numImg' : getNumberImgPerPost(post.id),
                 'Imgs' : getAllImgOfPost(post.id),
-                'sharer_name': sharers_name
+                'sharer_name': sharers_name,
+                'getUnsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             })
     app.logger.info(f"User {user_id} has {len(shared_posts_with_sharer)} shared posts with sharer")
     return shared_posts_with_sharer
@@ -448,6 +471,11 @@ def getAllImgOfPost(post_id):
             image_list.append(img_dict)
         return image_list
     return None
+
+def getSharersName(post_id):
+    sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == post_id).distinct().all()
+    sharers_name = ', '.join([sharer_name[0] for sharer_name in sharers_name])
+    return sharers_name
 
 if __name__ == "__main__":
     with app.app_context():
