@@ -252,6 +252,25 @@ def getPostsFromFollowing(user_id):
         post_list.append(post_dict)
     return post_list
 
+def getFollowingUsers(user_id, search_text=None):
+    follows = Follow.query.filter_by(follower_id=user_id).all()
+    if not follows:
+        return None
+    following_ids = [follow.following_id for follow in follows]
+    query = User.query.filter(User.id.in_(following_ids))
+    if search_text is not None:
+        query = query.filter(User.nickname.contains(search_text))
+    users = query.all()
+    user_list = []
+    for user in users:
+        user_dict = {
+            'user_id': user.id,
+            'nickname': user.nickname,
+            'email': user.email
+        }
+        user_list.append(user_dict)
+    return user_list
+
 def createFollow(follower_id, following_id):
     follow = Follow(follower_id, following_id)
     db.session.add(follow)

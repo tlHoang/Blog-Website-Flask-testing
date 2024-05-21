@@ -108,8 +108,6 @@
         .comment-body {
             border-bottom: 1px solid rgb(238, 230, 230);
         }
-        .comment-content {
-        }
         .update-time {
             font-size: 0.65rem;
         }
@@ -128,7 +126,7 @@
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <a href="{{ url_for('user', user_id=post['user_id']) }}" class="name"><h4 class="card-title">{{ post['user_nickname'] }}</h4></a>
+                <h4 class="card-title"><a href="{{ url_for('user', user_id=post['user_id']) }}" class="name">{{ post['user_nickname'] }}</a></h4>
                 <h5 class="card-title">{{ post['title'] }}</h5>
                 <p class="card-text">{{ post['content'] }}</p>
                 <p class="card-text" title="{{ post['created_at'] }}"><small class="text-muted">{{ post['lastUpdated'] }}</small></p>
@@ -175,7 +173,7 @@
             {% if post['numComment'] > 0 %}
                 {% for comment in post['comments'] %}
                 <div class="card-body comment-body">
-                    <a href="{{ url_for('user', user_id=comment['user_id']) }}" class="name"><h6 class="card-title comment-title">{{ comment['nickname'] }}</h6></a>
+                    <h6 class="card-title comment-title"><a href="{{ url_for('user', user_id=comment['user_id']) }}" class="name">{{ comment['nickname'] }}</a></h6>
                     <p class="card-text comment-content">{{ comment['content'] }}</p>
                     <p class="card-text update-time text-muted" title="{{ comment['created_at'] }}">Updated: {{ comment['lastUpdated'] }}</p>
                 </div>

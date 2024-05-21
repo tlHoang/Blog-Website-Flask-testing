@@ -33,7 +33,7 @@ def new_comment():
     comment = createComment(data['postId'], data['userId'], data['content'])
     html_response = (
         "<div class='card-body comment-body'>"
-        f"<a href='/user/user_id={comment.user_id}' class='name'><h6 class='card-title comment-title'>{getUsernameFromId(comment.user_id)}</h6></a>"
+        f"<h6 class='card-title comment-title'><a href='/user/user_id={comment.user_id}' class='name'>{getNicknameFromId(comment.user_id)}</a></h6>"
         f"<p class='card-text comment-content'>{html.escape(comment.content)}</p>"
         "<p class='card-text update-time text-muted'>Updated: just now </p>"
         "</div>"
@@ -176,7 +176,6 @@ def user(user_id=None):
         user = getUserFromId(user_id)
         return render_template('user_profile.html', user=user, posts=posts, is_my_profile=is_my_profile, is_following=is_following)
     return redirect(url_for('login'))
-    # con 1 truong hop la user chua dang nhap, tam thoi se chuyen ve trang login
 
 @app.get('/logout')
 def logout():
@@ -234,3 +233,13 @@ def register():
         else:
             flash(check, 'info')
     return render_template('register.html')
+
+@app.route('/following_users')
+def following_users():
+    if 'user' not in session:
+        return redirect(url_for('login'))
+
+    search_text = request.args.get('search')
+    following_users = getFollowingUsers(session['user']['id'], search_text)
+    print(following_users)
+    return render_template('following_users.html', following_users=following_users, is_empty=(following_users is None or len(following_users) == 0))
