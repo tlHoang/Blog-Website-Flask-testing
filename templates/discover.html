@@ -1,0 +1,121 @@
+{% extends 'header.html' %}
+{% block title %}Discover{% endblock %}
+
+{% block css %}
+    <style>
+        .block_content {
+            height: 100%;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 50vw;
+            margin-top: 20px;
+            padding-bottom: 20px;
+        }
+        @media screen and (max-width: 600px) {
+            .container {
+                width: 95vw;
+            }
+        }
+        @media screen and (max-width: 992px) {
+            .container {
+                width: 85vw;
+            }
+        }
+        .container .card .card-body .card-text {
+            white-space: pre-line;
+        }
+
+        .container .card .card-interact {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .container .card .card-interact .like {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-left: auto;
+            margin-right: auto;
+            cursor: pointer;
+            padding: 3px 10vw;
+            border-radius: 2px;
+        }
+
+        .container .card .card-interact .like:hover {
+            background-color: rgb(242, 242, 242);
+        }
+
+        .container .card .card-interact .comment {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            margin-left: auto;
+            margin-right: auto;
+            cursor: pointer;
+            padding: 3px 10vw;
+            border-radius: 2px;
+        }
+
+        .container .card .card-interact .comment:hover {
+            background-color: rgb(242, 242, 242);
+        }
+        
+        .number {
+            margin-top: auto;
+            margin-bottom: auto;
+            margin-right: 5px;
+            padding: 0;
+            user-select: none;
+        }
+
+        a:has(> .comment),
+        a:has(> .like) {
+            text-decoration: none;
+            color: black;
+        }
+
+        .name {
+            text-decoration: none;
+            color: #0000EE;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form action="/search" method="get">
+        <div class="row">
+            <div class="col">
+                <input type="text" class="form-control" name="query" placeholder="Search">
+            </div>
+            <div class="col">
+                <select class="form-control" name="category">
+                    <option selected>Choose...</option>
+                    <option value="1">Post's title</option>
+                    <option value="2">Post's content</option>
+                    <option value="3">User's post</option>
+                </select>
+            </div>
+            <div class="col">
+                <button class="btn btn-outline-secondary" type="submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% include 'base.html' %}
+{% endblock %}
