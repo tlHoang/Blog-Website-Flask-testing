@@ -324,7 +324,7 @@ def getPostDetailFromPostId(post_id, user_id=None):
             'Imgs' : getAllImgOfPost(post.id),
             'created_at': post.created_at,
             'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-            'sharer_name': getSharersName(post.id),
+            'sharer_name': getSharersName(post.id, user_id),
             'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
         }
     return None
@@ -355,7 +355,7 @@ def getAllPostFromUserId(user_id):
                 'Imgs' : getAllImgOfPost(post.id),
                 'created_at': post.created_at,
                 'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-                'sharer_name': getSharersName(post.id),
+                'sharer_name': getSharersName(post.id, user_id),
                 'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             }
             post_list.append(post_dict)
@@ -408,7 +408,7 @@ def getPostFromPostID(post_id, user_id=None):
             'Imgs' : getAllImgOfPost(post.id),
             'created_at': post.created_at,
             'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-            'sharer_name': getSharersName(post.id),
+            'sharer_name': getSharersName(post.id, user_id),
             'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
         }
         post_list.append(post_dict)
@@ -479,6 +479,7 @@ def getSharersName(post_id, user_id=None):
         return None
     sharers_name = db.session.query(User.nickname).join(Share, User.id == Share.user_id).filter(Share.post_id == post_id, Share.recipient_id==user_id).distinct().all()
     sharers_name = ', '.join([sharer_name[0] for sharer_name in sharers_name])
+    app.logger.info(f"Sharers name from getSharersName(): {sharers_name}")
     return sharers_name
 
 def searchWithCategory(query, category, user_id=None):
@@ -506,12 +507,12 @@ def searchWithCategory(query, category, user_id=None):
                 'Imgs' : getAllImgOfPost(post.id),
                 'created_at': post.created_at,
                 'lastUpdated': getReadableTimeString(datetime.now() - post.created_at),
-                'sharer_name': getSharersName(post.id),
+                'sharer_name': getSharersName(post.id, user_id),
                 'unsharedUserNickname': getUnsharedUserNickname(post.id, user_id)
             }
             post_list.append(post_dict)
-    post_list.append(post_dict)
-    return post_list
+        return post_list
+    return None
 
 if __name__ == "__main__":
     with app.app_context():

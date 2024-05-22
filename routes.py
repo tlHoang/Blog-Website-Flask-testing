@@ -4,6 +4,7 @@ from models import *
 from app import app
 import base64
 import html
+from urllib.parse import urlparse
 
 app.permanent_session_lifetime = timedelta(minutes=20)
 app.config['SECRET_KEY'] = 'tanphat'
@@ -17,6 +18,7 @@ def get_post_detail(post_id):
         user_id_view = session['user']['id']
         if session['user']['id'] is user_id and user_id is not None:
             my_post = True
+    app.logger.info(f"User_id_view {user_id_view} view post {post_id}")
     post_detail = getPostDetailFromPostId(post_id, user_id_view)
     return render_template('post_detail.html', post=post_detail, is_my_post=my_post)
 
@@ -252,4 +254,24 @@ def search():
     query = request.args.get('query')
     category = request.args.get('category')
     results = searchWithCategory(query, category, user_id)
-    return render_template('discover.html', posts=results)
+    # Get the referrer URL
+    referrer_url = request.referrer
+    app.logger.info(f"Referrer URL: {referrer_url}")
+    if referrer_url:
+        # Parse the referrer URL to get the path
+        referrer_path = urlparse(referrer_url).path
+        app.logger.info(f"Referrer path: {referrer_path}")
+
+        # Render the corresponding template
+        if referrer_path == '/':
+            return render_template('home.html', posts=results)
+        elif referrer_path == '/discover':
+            return render_template('discover.html', posts=results)
+        elif referrer_path == '/my_post':
+            return render_template('my_post.html', posts=results)
+        elif referrer_path == '/following_posts':
+            return render_template('following_posts.html', posts=results)
+        # Add more elif statements for other routes if needed
+
+    # If there's no referrer or it doesn't match any known routes, render a default template
+    return render_template('home.html', posts=results)
