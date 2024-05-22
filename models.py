@@ -291,6 +291,8 @@ def getUnsharedUserNickname(post_id, sharer_id=None):
         # If post_id is in the Share table, get users who are not in the recipient_id attribute of the Share table
         unshared_users = db.session.query(User).outerjoin(Share, (User.id == Share.recipient_id) & (Share.post_id == post_id)).filter(Share.id == None).all()
     else:
+        if sharer_id is None:
+            return None
         # If post_id is not in the Share table, get all users
         unshared_users = db.session.query(User).all()
     
