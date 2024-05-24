@@ -124,8 +124,6 @@
         .comment-body {
             border-bottom: 1px solid rgb(238, 230, 230);
         }
-        .comment-content {
-        }
         .update-time {
             font-size: 0.65rem;
         }
@@ -143,7 +141,7 @@
             background-color: transparent;
         }
 
-        .modal {
+        .modal-viet {
             display: none;
             position: fixed;
             z-index: 1;
@@ -156,7 +154,7 @@
             background-color: rgba(0,0,0,0.4);
         }
 
-        .modal-content {
+        .modal-content-viet {
             background-color: #fefefe;
             margin: 15% auto;
             padding: 20px;
@@ -198,7 +196,7 @@
             {% endif %}
         <div class="card">
             <div class="card-body">
-                <a href="{{ url_for('user', user_id=post['user_id']) }}" class="name"><h4 class="card-title">{{ post['user_nickname'] }}</h4></a>
+                <h4 class="card-title"><a href="{{ url_for('user', user_id=post['user_id']) }}" class="name">{{ post['user_nickname'] }}</a></h4>
                 <h5 class="card-title">{{ post['title'] }}</h5>
                 <p class="card-text">{{ post['content'] }}</p>
                 <p class="card-text" title="{{ post['created_at'] }}"><small class="text-muted">{{ post['lastUpdated'] }}</small></p>
@@ -235,8 +233,8 @@
                         </svg>
                     </div>
                 </button>
-                <div data-post-id="{{ post['id'] }}" class="modal">
-                    <div class="modal-content">
+                <div data-post-id="{{ post['id'] }}" class="modal modal-viet">
+                    <div class="modal-content modal-content-viet">
                         <span class="close">&times;</span>
                         <h3>Choose who to share</h3>
                         <form action="/share_action" method="post">
@@ -271,7 +269,7 @@
             {% if post['numComment'] > 0 %}
                 {% for comment in post['comments'] %}
                 <div class="card-body comment-body">
-                    <a href="{{ url_for('user', user_id=comment['user_id']) }}" class="name"><h6 class="card-title comment-title">{{ comment['nickname'] }}</h6></a>
+                    <h6 class="card-title comment-title"><a href="{{ url_for('user', user_id=comment['user_id']) }}" class="name">{{ comment['nickname'] }}</a></h6>
                     <p class="card-text comment-content">{{ comment['content'] }}</p>
                     <p class="card-text update-time text-muted" title="{{ comment['created_at'] }}">Updated: {{ comment['lastUpdated'] }}</p>
                 </div>

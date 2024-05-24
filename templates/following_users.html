@@ -1,0 +1,85 @@
+{% extends 'header.html' %}
+{% block title %}My Posts{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/follow.css') }}">
+<style>
+    .name {
+        text-decoration: none;
+        color: #0000EE;
+    }
+
+    .card-body {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card {
+        margin: 0.5rem auto;
+        width: 60%;
+    }
+
+    .center {
+        text-align: center;
+    }
+
+    .search-box {
+        width: 60%;
+        margin: 20px auto;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
+    }
+
+    .search-box input {
+        width: 80%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="center">Following Users</h1>
+    <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search following users by nickname...">
+        <button class="btn btn-primary searchBtn">Search</button>
+    </div>
+    {% if following_users %}
+    <div class="container">
+        {% for user in following_users %}
+        <div class="card user-card">
+            <div class="card-body">
+                <div>
+                    <h5 class="card-title">
+                        <a class="name" href="{{ url_for('user', user_id=user['user_id']) }}">{{ user['nickname'] }}</a>
+                    </h5>
+                    <p class="card-text text-muted">{{ user['email'] }}</p>
+                </div>
+                <button id="followBtn" class="btn btn-secondary following"
+                    data-follower-id="{{ session['user']['id'] }}"
+                    data-following-id="{{ user['user_id'] }}">Unfollow</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="center">No following users</p>
+</div>
+{% endif %}
+{% if not is_empty %}
+<script src="{{ url_for('static', filename='js/follow.js') }}"></script>
+{% endif %}
+<script>
+    document.querySelector('.searchBtn').addEventListener('click', searchUsers);
+    function searchUsers() {
+        const input = document.getElementById('searchInput').value.toLowerCase();
+        const searchUrl = '/following_users?search=' + encodeURIComponent(input);
+        window.location.href = searchUrl;
+    }
+</script>
+{% endblock %}
