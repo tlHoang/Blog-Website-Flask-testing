@@ -4,6 +4,7 @@ from models import *
 from app import app
 import base64
 import html
+from urllib.parse import urlparse
 
 app.permanent_session_lifetime = timedelta(minutes=20)
 app.config['SECRET_KEY'] = 'tanphat'
@@ -17,6 +18,7 @@ def get_post_detail(post_id):
         user_id_view = session['user']['id']
         if session['user']['id'] is user_id and user_id is not None:
             my_post = True
+    app.logger.info(f"User_id_view {user_id_view} view post {post_id}")
     post_detail = getPostDetailFromPostId(post_id, user_id_view)
     return render_template('post_detail.html', post=post_detail, is_my_post=my_post)
 
@@ -44,7 +46,8 @@ def new_comment():
 def following_posts():
     if 'user' not in session:
         return redirect(url_for('login'))
-    posts = getPostsFromFollowing(session['user']['id'])
+    user_id = session['user']['id']
+    posts = getPostsFromFollowing(user_id)
     return render_template('following_posts.html', posts=posts)
 
 
@@ -92,7 +95,7 @@ def follow_action():
 def user_profile():
     if 'user' not in session:
         return redirect(url_for('login'))
-    posts = getAllPost(session['user']['id'])
+    posts = getAllPostFromUserId(session['user']['id'])
     return render_template('user_profile.html', posts=posts)
 
 @app.post('/update_password')
@@ -128,12 +131,17 @@ def share_action():
     for recipient_id in recipient_ids:
         sharePost(user_id, recipient_id, post_id)
         app.logger.info(f"User {user_id} shared post {post_id} to user {recipient_id}")
-    return jsonify({}), 204
+    return redirect(request.referrer or url_for('index'))
 ###
 
 @app.route('/')
 def index():
-    return render_template('home.html')
+    if 'user' in session:
+        user_id = session['user']['id']
+        app.logger.info(f"From index() {user_id}")
+        shared_posts = getAllSharedPost(user_id)
+        return render_template('home.html', posts=shared_posts)
+    return render_template('home.html', posts=getAllPost())
 
 @app.route('/add', methods=['GET', 'POST'])
 def add():
@@ -166,13 +174,14 @@ def login():
 def user(user_id=None):
     is_my_profile = False
     is_following = False
+    app.logger.info(f"profile user_id: {user_id}")
     if 'user' in session:
         if session['user']['id'] is user_id and user_id is not None:
             is_my_profile = True
         else:
             is_following = checkFollowing(session['user']['id'], user_id)
 
-        posts = getAllPost(user_id)
+        posts = getAllPostFromUserId(user_id)
         user = getUserFromId(user_id)
         return render_template('user_profile.html', user=user, posts=posts, is_my_profile=is_my_profile, is_following=is_following)
     return redirect(url_for('login'))
@@ -201,13 +210,10 @@ def post_bai():
                 image_data = image.read()
                 base64_image = base64.b64encode(image_data).decode('utf-8')
                 createImg(post.id, base64_image, image.filename, image.mimetype)
-
-        postWithImage = getPostFromPostID(post.id)
-        nicknameList = getAllNickname()
-        # Remove the current user from the nicknameList
-        nicknameList = [user for user in nicknameList if user['id'] != user_id]
-
-        return render_template('post_content.html', post=postWithImage, nicknameList=nicknameList)
+        app.logger.info(f"User {user_id} created post {post}")
+        postWithImage = getPostFromPostID(post.id, user_id)
+        app.logger.info(f"User {user_id} created post with image {postWithImage}")
+        return render_template('post_content.html', posts=postWithImage)
     
     return redirect(url_for('login'))
 
@@ -215,8 +221,8 @@ def post_bai():
 def my_post():
     if 'user' in session:
         user_id = session['user']['id']
-        my_post = getAllPost(user_id)
-        return render_template('my_post.html', myPosts=my_post)
+        my_post = getAllPostFromUserId(user_id)
+        return render_template('my_post.html', posts=my_post)
     return redirect(url_for('index'))
 
 @app.route('/register', methods = ['GET', 'POST'])
@@ -233,6 +239,41 @@ def register():
         else:
             flash(check, 'info')
     return render_template('register.html')
+
+@app.route('/discover')
+def discover():
+    if 'user' in session:
+        user_id = session['user']['id']
+    return render_template('discover.html', posts=getAllPost(user_id))
+
+@app.route('/search')
+def search():
+    if 'user' in session:
+        user_id = session['user']['id']
+    query = request.args.get('query')
+    category = request.args.get('category')
+    results = searchWithCategory(query, category, user_id)
+    # Get the referrer URL
+    referrer_url = request.referrer
+    app.logger.info(f"Referrer URL: {referrer_url}")
+    if referrer_url:
+        # Parse the referrer URL to get the path
+        referrer_path = urlparse(referrer_url).path
+        app.logger.info(f"Referrer path: {referrer_path}")
+
+        # Render the corresponding template
+        if referrer_path == '/':
+            return render_template('home.html', posts=results)
+        elif referrer_path == '/discover':
+            return render_template('discover.html', posts=results)
+        elif referrer_path == '/my_post':
+            return render_template('my_post.html', posts=results)
+        elif referrer_path == '/following_posts':
+            return render_template('following_posts.html', posts=results)
+        # Add more elif statements for other routes if needed
+
+    # If there's no referrer or it doesn't match any known routes, render a default template
+    return render_template('home.html', posts=results)
 
 @app.route('/following_users')
 def following_users():

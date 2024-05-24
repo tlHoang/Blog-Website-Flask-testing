@@ -24,6 +24,10 @@ app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
 db = SQLAlchemy(app)
+
+# Import database models with app context
+with app.app_context():
+    from models import *
 migrate = Migrate(app, db)
 
 if __name__ == "__main__":
