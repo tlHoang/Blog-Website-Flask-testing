@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'header.html' %}
 {% block title %}My Posts{% endblock %}
 
 {% block css %}
@@ -46,7 +46,7 @@
 <div class="container">
     <h1 class="center">Following Users</h1>
     <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Search users by nickname...">
+        <input type="text" id="searchInput" placeholder="Search following users by nickname...">
         <button class="btn btn-primary searchBtn">Search</button>
     </div>
     {% if following_users %}

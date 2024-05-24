@@ -141,7 +141,7 @@
             background-color: transparent;
         }
 
-        .modal {
+        .modal-viet {
             display: none;
             position: fixed;
             z-index: 1;
@@ -154,7 +154,7 @@
             background-color: rgba(0,0,0,0.4);
         }
 
-        .modal-content {
+        .modal-content-viet {
             background-color: #fefefe;
             margin: 15% auto;
             padding: 20px;
@@ -233,8 +233,8 @@
                         </svg>
                     </div>
                 </button>
-                <div data-post-id="{{ post['id'] }}" class="modal">
-                    <div class="modal-content">
+                <div data-post-id="{{ post['id'] }}" class="modal modal-viet">
+                    <div class="modal-content modal-content-viet">
                         <span class="close">&times;</span>
                         <h3>Choose who to share</h3>
                         <form action="/share_action" method="post">
