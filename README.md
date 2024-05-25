@@ -1,5 +1,5 @@
-# Flask-example
- Example of a minimal app using Flask
+# Blog Website using Flask
+ Blog Website using Flask as a framework
 
 # Installation
 Install neccessary library
