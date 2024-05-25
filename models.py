@@ -535,6 +535,14 @@ def searchWithCategory(query, category, user_id=None):
         return post_list
     return None
 
+def deletePost(post_id):
+    post = Post.query.get(post_id)
+    if post:
+        db.session.delete(post)
+        db.session.commit()
+        return True
+    return False
+
 if __name__ == "__main__":
     with app.app_context():
         if not path.exists('app.db'):
