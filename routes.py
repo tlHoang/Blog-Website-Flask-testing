@@ -244,7 +244,10 @@ def register():
 def discover():
     if 'user' in session:
         user_id = session['user']['id']
-    return render_template('discover.html', posts=getAllPost(user_id))
+    posts = getAllPost(user_id)
+    # Exclude posts from the specific user
+    posts = [post for post in posts if post['user_id'] != user_id]
+    return render_template('discover.html', posts=posts)
 
 @app.route('/search')
 def search():
