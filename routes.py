@@ -222,7 +222,7 @@ def my_post():
     if 'user' in session:
         user_id = session['user']['id']
         my_post = getAllPostFromUserId(user_id)
-        return render_template('my_post.html', posts=my_post)
+        return render_template('my_post.html', posts=my_post, delPermit=1)
     return redirect(url_for('index'))
 
 @app.route('/register', methods = ['GET', 'POST'])
@@ -244,7 +244,10 @@ def register():
 def discover():
     if 'user' in session:
         user_id = session['user']['id']
-    return render_template('discover.html', posts=getAllPost(user_id))
+    posts = getAllPost(user_id)
+    # Exclude posts from the specific user
+    posts = [post for post in posts if post['user_id'] != user_id]
+    return render_template('discover.html', posts=posts)
 
 @app.route('/search')
 def search():
@@ -284,3 +287,10 @@ def following_users():
     following_users = getFollowingUsers(session['user']['id'], search_text)
     print(following_users)
     return render_template('following_users.html', following_users=following_users, is_empty=(following_users is None or len(following_users) == 0))
+
+@app.route('/delete/<int:post_id>', methods = ['GET', 'POST'])
+def delete_post(post_id):
+    deletePost(post_id)
+    user_id = session['user']['id']
+    my_post = getAllPostFromUserId(user_id)
+    return render_template('my_post.html', posts=my_post, delPermit=1)
