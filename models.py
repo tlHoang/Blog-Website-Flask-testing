@@ -535,6 +535,26 @@ def searchWithCategory(query, category, user_id=None):
         return post_list
     return None
 
+def deletePost(post_id):
+    post = Post.query.get(post_id)
+    if post:
+        comments = Comment.query.filter_by(post_id=post_id).all()
+        for comment in comments:
+            db.session.delete(comment)
+        likes = Like.query.filter_by(post_id=post_id).all()
+        for like in likes:
+            db.session.delete(like)
+        imgs = Img.query.filter_by(post_id=post_id).all()
+        for img in imgs:
+            db.session.delete(img)
+        shares = Share.query.filter_by(post_id=post_id).all()
+        for share in shares:
+            db.session.delete(share)
+        db.session.delete(post)
+        db.session.commit()
+        return True
+    return False
+
 if __name__ == "__main__":
     with app.app_context():
         if not path.exists('app.db'):
