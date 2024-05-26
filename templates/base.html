@@ -241,7 +241,9 @@
         function handleClickDelete() {
             let userResponse = confirm("Do you want to delete this post?");
             if (userResponse) {
-                var direction = "/delete" + "/" + event.target.id
+                const postId = event.target.closest('svg').id;
+                const direction = "/delete" + "/" + postId;
+                // var direction = "/delete" + "/" + event.target.id
                 window.location.href = direction
             }
         }
